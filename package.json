@@ -37,6 +37,7 @@
     "docs:json": "typedoc --json docs/v2/spec.json --excludeExternals --excludePrivate --excludeProtected src/index.ts"
   },
   "dependencies": {
+    "@supabase/auth-js": "^2.71.1",
     "@supabase/node-fetch": "^2.6.14"
   },
   "devDependencies": {
@@ -63,7 +64,7 @@
     "rimraf": "^3.0.2",
     "semantic-release-plugin-update-version-in-files": "^1.1.0",
     "ts-jest": "^28.0.7",
-    "typedoc": "^0.23.28",
+    "typedoc": "^0.22.16",
     "typescript": "^4.7.4"
   }
 }

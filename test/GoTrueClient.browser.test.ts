@@ -4,6 +4,7 @@
 
 import { autoRefreshClient, getClientWithSpecificStorage, pkceClient } from './lib/clients'
 import { mockUserCredentials } from './lib/utils'
+import GoTrueClient from '../src/GoTrueClient'
 import {
   supportsLocalStorage,
   validateExp,
@@ -15,7 +16,7 @@ import type { SolanaWeb3Credentials } from '../src/lib/types'
 
 // Add structuredClone polyfill for jsdom
 if (typeof structuredClone === 'undefined') {
-  ; (global as any).structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj))
+  ;(global as any).structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj))
 }
 
 describe('GoTrueClient in browser environment', () => {
@@ -163,7 +164,7 @@ describe('User proxy and deep clone functions in browser', () => {
   it('should throw on property setting to user proxy', () => {
     const proxy = userNotAvailableProxy()
     expect(() => {
-      (proxy as any).email = 'test@example.com'
+      ;(proxy as any).email = 'test@example.com'
     }).toThrow()
   })
 })
@@ -241,7 +242,7 @@ describe('Callback URL handling', () => {
     window.location.href =
       'http://localhost:9999/callback#error=invalid_grant&error_description=Invalid+grant'
 
-    mockFetch.mockImplementation((url: string) => {
+    mockFetch.mockImplementation((_url: string) => {
       return Promise.resolve({
         ok: false,
         json: () =>
@@ -274,7 +275,7 @@ describe('Callback URL handling', () => {
       writable: true,
     })
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       detectSessionInUrl: true,
       autoRefreshToken: false,
@@ -306,7 +307,7 @@ describe('Callback URL handling', () => {
       removeItem: jest.fn(),
     }
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       detectSessionInUrl: true,
       autoRefreshToken: false,
@@ -401,9 +402,9 @@ describe('Browser locks functionality', () => {
   it('should use navigator locks when available', () => {
     // Mock navigator.locks
     const mockLock = { name: 'test-lock' }
-    const mockRequest = jest.fn().mockImplementation((_, __, callback) =>
-      Promise.resolve(callback(mockLock))
-    )
+    const mockRequest = jest
+      .fn()
+      .mockImplementation((_, __, callback) => Promise.resolve(callback(mockLock)))
 
     Object.defineProperty(navigator, 'locks', {
       value: { request: mockRequest },
@@ -429,9 +430,9 @@ describe('Browser locks functionality', () => {
 
     // Mock navigator.locks
     const mockLock = { name: 'test-lock' }
-    const mockRequest = jest.fn().mockImplementation((_, __, callback) =>
-      Promise.resolve(callback(mockLock))
-    )
+    const mockRequest = jest
+      .fn()
+      .mockImplementation((_, __, callback) => Promise.resolve(callback(mockLock)))
 
     Object.defineProperty(navigator, 'locks', {
       value: { request: mockRequest },
@@ -489,7 +490,7 @@ describe('Web3 functionality in browser', () => {
     const mockWallet = {
       publicKey: {
         toString: () => 'test-public-key',
-        toBase58: () => 'test-public-key-base58'
+        toBase58: () => 'test-public-key-base58',
       },
       signMessage: jest.fn().mockResolvedValue(new Uint8Array(64)),
     }
@@ -517,14 +518,15 @@ describe('Web3 functionality in browser', () => {
     const mockFetch = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: () => Promise.resolve({
-        session: { access_token: 'test', user: { id: 'test' } },
-        user: { id: 'test' }
-      }),
+      json: () =>
+        Promise.resolve({
+          session: { access_token: 'test', user: { id: 'test' } },
+          user: { id: 'test' },
+        }),
       headers: new Headers(),
     })
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       fetch: mockFetch,
@@ -543,7 +545,6 @@ describe('Web3 functionality in browser', () => {
 })
 
 describe('GoTrueClient constructor edge cases', () => {
-
   it('should handle userStorage with persistSession', () => {
     const customUserStorage = {
       getItem: jest.fn(),
@@ -551,7 +552,7 @@ describe('GoTrueClient constructor edge cases', () => {
       removeItem: jest.fn(),
     }
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       userStorage: customUserStorage,
       persistSession: true,
@@ -564,7 +565,6 @@ describe('GoTrueClient constructor edge cases', () => {
 })
 
 describe('linkIdentity with skipBrowserRedirect false', () => {
-
   it('should linkIdentity with skipBrowserRedirect false', async () => {
     Object.defineProperty(window, 'location', {
       value: {
@@ -601,7 +601,7 @@ describe('linkIdentity with skipBrowserRedirect false', () => {
       headers: new Headers(),
     } as Response)
 
-    const clientWithSession = new (require('../src/GoTrueClient').default)({
+    const clientWithSession = new GoTrueClient({
       url: 'http://localhost:9999',
       storageKey: 'test-specific-storage',
       autoRefreshToken: false,
@@ -693,7 +693,7 @@ describe('Session Management Tests', () => {
       headers: new Headers(),
     } as Response)
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: true,
       persistSession: true,
@@ -733,7 +733,7 @@ describe('Session Management Tests', () => {
       headers: new Headers(),
     } as Response)
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: true,
       persistSession: true,
@@ -768,7 +768,7 @@ describe('Session Management Tests', () => {
       removeItem: jest.fn(),
     }
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       storage: sessionStorage,
       userStorage: userStorage,
@@ -794,13 +794,13 @@ describe('Session Management Tests', () => {
       removeItem: jest.fn(),
     }
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       storage: mockStorage,
     })
 
-    const { data, error } = await client.refreshSession()
+    const { error } = await client.refreshSession()
     expect(error).toBeDefined()
     expect(error?.message).toContain('session missing')
   })
@@ -815,7 +815,7 @@ describe('Additional Tests', () => {
       removeItem: jest.fn(),
     }
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       persistSession: true,
@@ -841,7 +841,7 @@ describe('Additional Tests', () => {
       writable: true,
     })
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       detectSessionInUrl: true,
       autoRefreshToken: false,
@@ -873,7 +873,7 @@ describe('Additional Tests', () => {
       writable: true,
     })
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       fetch: mockFetch,
@@ -912,7 +912,7 @@ describe('OAuth and Sign-in Branch Testing', () => {
       writable: true,
     })
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       fetch: mockFetch,
@@ -933,14 +933,15 @@ describe('OAuth and Sign-in Branch Testing', () => {
     const mockFetch = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: () => Promise.resolve({
-        session: { access_token: 'test', user: { id: 'test' } },
-        user: { id: 'test' }
-      }),
+      json: () =>
+        Promise.resolve({
+          session: { access_token: 'test', user: { id: 'test' } },
+          user: { id: 'test' },
+        }),
       headers: new Headers(),
     })
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       fetch: mockFetch,
@@ -978,7 +979,7 @@ describe('Auto Refresh and Token Management', () => {
       removeItem: jest.fn(),
     }
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       storage: mockStorage,
@@ -1014,7 +1015,7 @@ describe('Storage and User Storage Combinations', () => {
       removeItem: jest.fn(),
     }
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       storage: mockStorage,
@@ -1029,11 +1030,11 @@ describe('Storage and User Storage Combinations', () => {
 
 describe('Lock Mechanism Branches', () => {
   it('should handle lock acquisition timeout', async () => {
-    const slowLock = jest.fn().mockImplementation(() =>
-      new Promise((resolve) => setTimeout(resolve, 100))
-    )
+    const slowLock = jest
+      .fn()
+      .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)))
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       lock: slowLock,
@@ -1049,7 +1050,7 @@ describe('Lock Mechanism Branches', () => {
       release: jest.fn().mockRejectedValue(new Error('Lock release error')),
     }))
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       lock: errorLock,
@@ -1080,17 +1081,18 @@ describe('MFA Complex Branches', () => {
     const mockFetch = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: () => Promise.resolve({
-        id: 'factor-id',
-        type: 'phone',
-        status: 'unverified',
-        friendly_name: 'Test Phone',
-        created_at: new Date().toISOString(),
-      }),
+      json: () =>
+        Promise.resolve({
+          id: 'factor-id',
+          type: 'phone',
+          status: 'unverified',
+          friendly_name: 'Test Phone',
+          created_at: new Date().toISOString(),
+        }),
       headers: new Headers(),
     })
 
-    const client = new (require('../src/GoTrueClient').default)({
+    const client = new GoTrueClient({
       url: 'http://localhost:9999',
       autoRefreshToken: false,
       storage: mockStorage,

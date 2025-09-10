@@ -3258,8 +3258,8 @@ export default class GoTrueClient {
       const isValid = await crypto.subtle.verify(
         algorithm,
         publicKey,
-        signature,
-        stringToUint8Array(`${rawHeader}.${rawPayload}`)
+        new Uint8Array(signature),
+        new Uint8Array(stringToUint8Array(`${rawHeader}.${rawPayload}`))
       )
 
       if (!isValid) {

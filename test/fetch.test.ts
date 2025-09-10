@@ -1,4 +1,5 @@
 import { MockServer } from 'jest-mock-server'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import fetch from '@supabase/node-fetch'
 import { API_VERSION_HEADER_NAME } from '../src/lib/constants'
