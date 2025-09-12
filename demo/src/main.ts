@@ -1,5 +1,5 @@
 import { AuthClient } from '@supabase/auth-js'
-import { Provider, Session, User, AuthChangeEvent } from '@supabase/auth-js'
+import { Provider, Session, User, AuthChangeEvent, AuthFlowType } from '@supabase/auth-js'
 
 // Configuração do cliente de autenticação
 const AUTH_URL = 'http://localhost:9999'
@@ -9,6 +9,7 @@ interface AuthConfig {
   autoRefreshToken?: boolean;
   persistSession?: boolean;
   detectSessionInUrl?: boolean;
+  flowType?: AuthFlowType;
 }
 
 class AuthDemo {
@@ -22,7 +23,8 @@ class AuthDemo {
       url: AUTH_URL,
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      flowType: 'pkce'
     }
 
     this.client = new AuthClient(config)
@@ -84,7 +86,7 @@ class AuthDemo {
       const { data, error } = await this.client.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin + window.location.pathname,
+          redirectTo: window.location.origin,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -111,27 +113,29 @@ class AuthDemo {
       const urlParams = new URLSearchParams(window.location.search)
       const code = urlParams.get('code')
       const error = urlParams.get('error')
+      const errorDescription = urlParams.get('error_description')
 
       if (error) {
-        throw new Error(`Erro OAuth: ${error}`)
+        const errorMsg = errorDescription ? `${error}: ${errorDescription}` : error
+        throw new Error(`Erro OAuth: ${errorMsg}`)
       }
 
-      if (code) {
+      if (code || window.location.hash.includes('access_token')) {
         this.showStatus('Processando callback OAuth...', 'loading')
         
+        // Tentar obter a sessão após OAuth
         const { data, error: sessionError } = await this.client.getSession()
         
         if (sessionError) {
+          console.warn('Erro ao obter sessão:', sessionError)
           throw sessionError
-        }
-
-        if (data.session) {
+        } else if (data.session) {
           this.showUserInfo(data.session.user)
           this.showStatus('Autenticação realizada com sucesso!', 'success')
-          
-          // Limpar URL
-          window.history.replaceState({}, document.title, window.location.pathname)
         }
+        
+        // Limpar URL
+        window.history.replaceState({}, document.title, window.location.pathname)
       }
     } catch (error) {
       console.error('Erro no callback OAuth:', error)
