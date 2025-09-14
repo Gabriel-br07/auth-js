@@ -47,15 +47,6 @@ export interface AuthState {
   redirectTo?: string;
 }
 
-export interface AuthContextValue extends AuthState {
-  login: (data: LoginData) => Promise<void>;
-  signup: (data: SignUpData) => Promise<void>;
-  logout: () => Promise<void>;
-  loginWithOAuth: (provider: 'google' | 'github') => Promise<void>;
-  refreshToken: () => Promise<void>;
-  updateUser: (updates: Partial<User>) => Promise<void>;
-}
-
 export interface ApiError {
   error: string;
   error_description?: string;
