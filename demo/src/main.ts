@@ -1,231 +1,200 @@
-import { AuthClient } from '@supabase/auth-js'
-import { Provider, Session, User, AuthChangeEvent, AuthFlowType } from '@supabase/auth-js'
+// Sistema Completo de Autenticação
+import { authSystem } from './contexts/AuthSystem';
+import { initRouter } from './router/AppRouter';
+import './styles/auth.css';
 
-// Configuração do cliente de autenticação
-const AUTH_URL = 'http://localhost:9999'
+// Classe principal da aplicação
+class AuthApp {
+  private initialized = false;
 
-interface AuthConfig {
-  url: string;
-  autoRefreshToken?: boolean;
-  persistSession?: boolean;
-  detectSessionInUrl?: boolean;
-  flowType?: AuthFlowType;
-}
-
-class AuthDemo {
-  private client: InstanceType<typeof AuthClient>
-  private statusElement: HTMLElement
-  private userInfoElement: HTMLElement
-  private logoutButton: HTMLElement
-
-  constructor() {
-    const config: AuthConfig = {
-      url: AUTH_URL,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce'
-    }
-
-    this.client = new AuthClient(config)
+  async init(): Promise<void> {
+    if (this.initialized) return;
     
-    // Elementos DOM
-    this.statusElement = document.getElementById('status')!
-    this.userInfoElement = document.getElementById('userInfo')!
-    this.logoutButton = document.getElementById('logoutBtn')!
-
-    this.init()
-  }
-
-  private async init(): Promise<void> {
     try {
-      // Escutar mudanças de autenticação
-      this.client.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
-        console.log('Auth state changed:', event, session)
-        this.handleAuthStateChange(event, session)
-      })
-
-      // Verificar sessão existente
-      const { data: { session } } = await this.client.getSession()
-      if (session) {
-        this.showUserInfo(session.user)
-      }
-
-      // Configurar event listeners
-      this.setupEventListeners()
-
-      // Processar callback OAuth se presente na URL
-      await this.handleOAuthCallback()
-
-      this.showStatus('Pronto para autenticação', 'success')
-    } catch (error) {
-      console.error('Erro na inicialização:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
-      this.showStatus(`Erro na inicialização: ${errorMessage}`, 'error')
-    }
-  }
-
-  private setupEventListeners(): void {
-    // Botões OAuth
-    const oauthButtons = document.querySelectorAll('.oauth-btn')
-    oauthButtons.forEach(button => {
-      button.addEventListener('click', async (e) => {
-        const provider = (e.currentTarget as HTMLElement).dataset.provider as Provider
-        await this.signInWithOAuth(provider)
-      })
-    })
-
-    // Botão de logout
-    this.logoutButton.addEventListener('click', () => this.signOut())
-  }
-
-  private async signInWithOAuth(provider: Provider): Promise<void> {
-    try {
-      this.showStatus(`Iniciando autenticação com ${provider}...`, 'loading')
-
-      const { data, error } = await this.client.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: window.location.origin,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
-      })
-
-      if (error) {
-        throw error
-      }
-
-      // O redirecionamento acontecerá automaticamente
-      this.showStatus(`Redirecionando para ${provider}...`, 'loading')
-    } catch (error) {
-      console.error('Erro no OAuth:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido no OAuth'
-      this.showStatus(`Erro no OAuth: ${errorMessage}`, 'error')
-    }
-  }
-
-  private async handleOAuthCallback(): Promise<void> {
-    try {
-      // Verificar se há parâmetros de callback na URL
-      const urlParams = new URLSearchParams(window.location.search)
-      const code = urlParams.get('code')
-      const error = urlParams.get('error')
-      const errorDescription = urlParams.get('error_description')
-
-      if (error) {
-        const errorMsg = errorDescription ? `${error}: ${errorDescription}` : error
-        throw new Error(`Erro OAuth: ${errorMsg}`)
-      }
-
-      if (code || window.location.hash.includes('access_token')) {
-        this.showStatus('Processando callback OAuth...', 'loading')
-        
-        // Tentar obter a sessão após OAuth
-        const { data, error: sessionError } = await this.client.getSession()
-        
-        if (sessionError) {
-          console.warn('Erro ao obter sessão:', sessionError)
-          throw sessionError
-        } else if (data.session) {
-          this.showUserInfo(data.session.user)
-          this.showStatus('Autenticação realizada com sucesso!', 'success')
-        }
-        
-        // Limpar URL
-        window.history.replaceState({}, document.title, window.location.pathname)
-      }
-    } catch (error) {
-      console.error('Erro no callback OAuth:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido no callback'
-      this.showStatus(`Erro no callback: ${errorMessage}`, 'error')
-    }
-  }
-
-  private handleAuthStateChange(event: AuthChangeEvent, session: Session | null): void {
-    switch (event) {
-      case 'SIGNED_IN':
-        if (session?.user) {
-          this.showUserInfo(session.user)
-          this.showStatus('Login realizado com sucesso!', 'success')
-        }
-        break
-      case 'SIGNED_OUT':
-        this.hideUserInfo()
-        this.showStatus('Logout realizado com sucesso!', 'success')
-        break
-      case 'TOKEN_REFRESHED':
-        console.log('Token atualizado')
-        break
-    }
-  }
-
-  private async signOut(): Promise<void> {
-    try {
-      this.showStatus('Fazendo logout...', 'loading')
+      console.log('🚀 Inicializando Sistema de Autenticação...');
       
-      const { error } = await this.client.signOut()
-      
-      if (error) {
-        throw error
+      // Aguardar o DOM estar pronto
+      if (document.readyState === 'loading') {
+        await new Promise(resolve => {
+          document.addEventListener('DOMContentLoaded', resolve);
+        });
       }
 
-      this.hideUserInfo()
-      this.showStatus('Logout realizado com sucesso!', 'success')
+      // Inicializar o router
+      const router = initRouter('app');
+      console.log('✅ Router inicializado');
+
+      // Configurar tratamento global de erros
+      this.setupErrorHandling();
+      
+      // Expor funcionalidades globais para debugging
+      this.setupGlobalDebug();
+
+      this.initialized = true;
+      console.log('✅ Sistema de Autenticação inicializado com sucesso!');
+      
     } catch (error) {
-      console.error('Erro no logout:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido no logout'
-      this.showStatus(`Erro no logout: ${errorMessage}`, 'error')
+      console.error('❌ Erro ao inicializar aplicação:', error);
+      this.showFatalError(error as Error);
     }
   }
 
-  private showUserInfo(user: User): void {
-    const emailElement = document.getElementById('userEmail')!
-    const providerElement = document.getElementById('userProvider')!
+  private setupErrorHandling(): void {
+    // Lidar com erros de autenticação
+    authSystem.onError((error) => {
+      console.error('Auth Error:', error);
+      this.showNotification(error.message, 'error');
+    });
 
-    emailElement.textContent = `Email: ${user.email || 'N/A'}`
-    providerElement.textContent = `Provider: ${user.app_metadata?.provider || 'N/A'}`
+    // Lidar com erros globais
+    window.addEventListener('error', (event) => {
+      console.error('Global Error:', event.error);
+    });
 
-    this.userInfoElement.style.display = 'block'
-
-    console.log('Dados do usuário:', user)
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled Promise Rejection:', event.reason);
+    });
   }
 
-  private hideUserInfo(): void {
-    this.userInfoElement.style.display = 'none'
+  private setupGlobalDebug(): void {
+    // Expor para debugging no console
+    (window as any).authDebug = {
+      authSystem,
+      getAuthState: () => authSystem.getState(),
+      getUser: () => authSystem.getUser(),
+      logout: () => authSystem.logout(),
+      login: (email: string, password: string) => authSystem.login({ email, password }),
+      signup: (email: string, password: string, firstName: string, lastName: string) => 
+        authSystem.signup({ email, password, first_name: firstName, last_name: lastName })
+    };
+
+    console.log('🔧 Debug tools available at window.authDebug');
   }
 
-  private showStatus(message: string, type: 'success' | 'error' | 'loading'): void {
-    this.statusElement.textContent = message
-    this.statusElement.className = `status ${type}`
-    this.statusElement.style.display = 'block'
+  private showNotification(message: string, type: 'success' | 'error' | 'info' = 'info'): void {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+      <div class="notification-content">
+        <span class="notification-icon">${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ️'}</span>
+        <span class="notification-message">${message}</span>
+      </div>
+    `;
 
-    // Auto-hide success/error messages after 5 seconds
-    if (type !== 'loading') {
-      setTimeout(() => {
-        this.statusElement.style.display = 'none'
-      }, 5000)
+    document.body.appendChild(notification);
+
+    // Remover após 5 segundos
+    setTimeout(() => {
+      notification.remove();
+    }, 5000);
+
+    // Permitir fechar clicando
+    notification.addEventListener('click', () => {
+      notification.remove();
+    });
+  }
+
+  private showFatalError(error: Error): void {
+    const appContainer = document.getElementById('app');
+    if (appContainer) {
+      appContainer.innerHTML = `
+        <div class="fatal-error">
+          <div class="error-container">
+            <div class="error-icon">⚠️</div>
+            <h1>Erro Fatal</h1>
+            <p>Ocorreu um erro ao inicializar a aplicação.</p>
+            <details>
+              <summary>Detalhes do erro</summary>
+              <pre>${error.message}\n${error.stack}</pre>
+            </details>
+            <button onclick="location.reload()" class="btn-primary">
+              Recarregar Página
+            </button>
+          </div>
+        </div>
+      `;
     }
-  }
-
-  // Métodos públicos para debug
-  public async getSession() {
-    return await this.client.getSession()
-  }
-
-  public async getUser() {
-    return await this.client.getUser()
   }
 }
 
-// Inicializar a aplicação quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', () => {
-  const authDemo = new AuthDemo()
+// Estilos para erro fatal
+const fatalErrorStyles = `
+  .fatal-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
   
-  // Expor para debug no console
-  ;(window as any).authDemo = authDemo
-})
+  .error-container {
+    background: white;
+    padding: 48px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+  }
+  
+  .error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  
+  .error-container h1 {
+    color: #dc2626;
+    margin-bottom: 16px;
+  }
+  
+  .error-container p {
+    color: #6b7280;
+    margin-bottom: 24px;
+  }
+  
+  .error-container details {
+    text-align: left;
+    margin: 24px 0;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+  }
+  
+  .error-container pre {
+    font-size: 12px;
+    color: #374151;
+    white-space: pre-wrap;
+  }
+  
+  .btn-primary {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-primary:hover {
+    background: #2563eb;
+  }
+`;
 
-export { AuthDemo }
+// Adicionar estilos de erro fatal
+const style = document.createElement('style');
+style.textContent = fatalErrorStyles;
+document.head.appendChild(style);
+
+// Inicializar aplicação
+const app = new AuthApp();
+app.init();
+
+// Hot Module Replacement (HMR) support para desenvolvimento
+if ((import.meta as any).hot) {
+  (import.meta as any).hot.accept(() => {
+    console.log('🔥 Hot reloading...');
+    location.reload();
+  });
+}

@@ -1,4 +1,4 @@
-import { AuthInvalidJwtError } from '../src'
+import { AuthInvalidJwtError } from "../src";
 import {
   decodeJWT,
   getAlgorithm,
@@ -6,94 +6,96 @@ import {
   parseResponseAPIVersion,
   getCodeChallengeAndMethod,
   validateUUID,
-} from '../src/lib/helpers'
+} from "../src/lib/helpers";
 
-describe('parseParametersFromURL', () => {
-  it('should parse parameters from a URL with query params only', () => {
-    const url = new URL('https://supabase.com')
-    url.searchParams.set('a', 'b')
-    url.searchParams.set('b', 'c')
+describe("parseParametersFromURL", () => {
+  it("should parse parameters from a URL with query params only", () => {
+    const url = new URL("https://supabase.com");
+    url.searchParams.set("a", "b");
+    url.searchParams.set("b", "c");
 
-    const result = parseParametersFromURL(url.href)
+    const result = parseParametersFromURL(url.href);
     expect(result).toMatchObject({
-      a: 'b',
-      b: 'c',
-    })
-  })
+      a: "b",
+      b: "c",
+    });
+  });
 
-  it('should parse parameters from a URL with fragment params only', () => {
-    const url = new URL('https://supabase.com')
-    const fragmentParams = new URLSearchParams({ a: 'b', b: 'c' })
-    url.hash = fragmentParams.toString()
+  it("should parse parameters from a URL with fragment params only", () => {
+    const url = new URL("https://supabase.com");
+    const fragmentParams = new URLSearchParams({ a: "b", b: "c" });
+    url.hash = fragmentParams.toString();
 
-    const result = parseParametersFromURL(url.href)
+    const result = parseParametersFromURL(url.href);
     expect(result).toMatchObject({
-      a: 'b',
-      b: 'c',
-    })
-  })
+      a: "b",
+      b: "c",
+    });
+  });
 
-  it('should parse parameters from a URL with both query params and fragment params', () => {
-    const url = new URL('https://supabase.com')
-    url.searchParams.set('a', 'b')
-    url.searchParams.set('b', 'c')
-    url.searchParams.set('x', 'z')
+  it("should parse parameters from a URL with both query params and fragment params", () => {
+    const url = new URL("https://supabase.com");
+    url.searchParams.set("a", "b");
+    url.searchParams.set("b", "c");
+    url.searchParams.set("x", "z");
 
-    const fragmentParams = new URLSearchParams({ d: 'e', x: 'y' })
-    url.hash = fragmentParams.toString()
+    const fragmentParams = new URLSearchParams({ d: "e", x: "y" });
+    url.hash = fragmentParams.toString();
 
-    const result = parseParametersFromURL(url.href)
+    const result = parseParametersFromURL(url.href);
     expect(result).toMatchObject({
-      a: 'b',
-      b: 'c',
-      d: 'e',
-      x: 'z', // search params take precedence
-    })
-  })
-})
+      a: "b",
+      b: "c",
+      d: "e",
+      x: "z", // search params take precedence
+    });
+  });
+});
 
-describe('parseResponseAPIVersion', () => {
-  it('should parse valid dates', () => {
+describe("parseResponseAPIVersion", () => {
+  it("should parse valid dates", () => {
     expect(
       parseResponseAPIVersion({
         headers: {
           get: () => {
-            return '2024-01-01'
+            return "2024-01-01";
           },
         },
       } as any)
-    ).toEqual(new Date('2024-01-01T00:00:00.0Z'))
-  })
+    ).toEqual(new Date("2024-01-01T00:00:00.0Z"));
+  });
 
-  it('should return null on invalid dates', () => {
-    ;['2024-01-32', '', 'notadate', 'Sat Feb 24 2024 17:59:17 GMT+0100'].forEach((example) => {
-      expect(
-        parseResponseAPIVersion({
-          headers: {
-            get: () => {
-              return example
+  it("should return null on invalid dates", () => {
+    ["2024-01-32", "", "notadate", "Sat Feb 24 2024 17:59:17 GMT+0100"].forEach(
+      (example) => {
+        expect(
+          parseResponseAPIVersion({
+            headers: {
+              get: () => {
+                return example;
+              },
             },
-          },
-        } as any)
-      ).toBeNull()
-    })
-  })
-})
+          } as any)
+        ).toBeNull();
+      }
+    );
+  });
+});
 
-describe('decodeJWT', () => {
-  it('should reject non-JWT strings', () => {
-    expect(() => decodeJWT('non-jwt')).toThrowError(
-      new AuthInvalidJwtError('Invalid JWT structure')
-    )
-    expect(() => decodeJWT('aHR0.cDovL.2V4YW1wbGUuY29t')).toThrowError(
-      new AuthInvalidJwtError('JWT not in base64url format')
-    )
-  })
+describe("decodeJWT", () => {
+  it("should reject non-JWT strings", () => {
+    expect(() => decodeJWT("non-jwt")).toThrowError(
+      new AuthInvalidJwtError("Invalid JWT structure")
+    );
+    expect(() => decodeJWT("aHR0.cDovL.2V4YW1wbGUuY29t")).toThrowError(
+      new AuthInvalidJwtError("JWT not in base64url format")
+    );
+  });
 
-  it('should decode JWT successfully', () => {
+  it("should decode JWT successfully", () => {
     expect(
       decodeJWT(
-        'eyJhbGciOiJFUzI1NiIsImtpZCI6ImZhM2ZmYzk5LTQ2MzUtNGIxOS1iNWMwLTZkNmE4ZDMwYzRlYiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb2plY3RyZWYuc3VwYWJhc2UuY28iLCJzdWIiOiI2OTAxMTJlNi04NThiLTQwYzctODBlNi05NmRiNjk3MTkyYjUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxODM4MDk5NjcwLCJpYXQiOjE3MzgwOTk2NzAsImVtYWlsIjoiIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnt9LCJ1c2VyX21ldGFkYXRhIjp7ImNvbG9yIjoiYmx1ZSJ9LCJyb2xlIjoiIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoiYW5vbnltb3VzIiwidGltZXN0YW1wIjoxNzM4MDk5NjcwfV0sInNlc3Npb25faWQiOiI0YzZiMjg5NC00M2I0LTQ2YzQtYmQyZi0zNWM1OWVjNDRmZWYiLCJpc19hbm9ueW1vdXMiOnRydWV9.JcWCW3u4F9iFo1yV3OlxnosP7jLnOa2Q7LoPTxyFmvZc1_Kziimw8jD95EpXyTMEwKFt2dPSmWGkqdoJu6FV0Q'
+        "eyJhbGciOiJFUzI1NiIsImtpZCI6ImZhM2ZmYzk5LTQ2MzUtNGIxOS1iNWMwLTZkNmE4ZDMwYzRlYiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Byb2plY3RyZWYuc3VwYWJhc2UuY28iLCJzdWIiOiI2OTAxMTJlNi04NThiLTQwYzctODBlNi05NmRiNjk3MTkyYjUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxODM4MDk5NjcwLCJpYXQiOjE3MzgwOTk2NzAsImVtYWlsIjoiIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnt9LCJ1c2VyX21ldGFkYXRhIjp7ImNvbG9yIjoiYmx1ZSJ9LCJyb2xlIjoiIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoiYW5vbnltb3VzIiwidGltZXN0YW1wIjoxNzM4MDk5NjcwfV0sInNlc3Npb25faWQiOiI0YzZiMjg5NC00M2I0LTQ2YzQtYmQyZi0zNWM1OWVjNDRmZWYiLCJpc19hbm9ueW1vdXMiOnRydWV9.JcWCW3u4F9iFo1yV3OlxnosP7jLnOa2Q7LoPTxyFmvZc1_Kziimw8jD95EpXyTMEwKFt2dPSmWGkqdoJu6FV0Q"
       )
     ).toMatchInlineSnapshot(`
 Object {
@@ -196,107 +198,110 @@ Object {
     209,
   ],
 }
-`)
-  })
-})
+`);
+  });
+});
 
-describe('getAlgorithm', () => {
+describe("getAlgorithm", () => {
   const cases = [
     {
-      name: 'RS256',
+      name: "RS256",
       expected: {
-        name: 'RSASSA-PKCS1-v1_5',
-        hash: { name: 'SHA-256' },
+        name: "RSASSA-PKCS1-v1_5",
+        hash: { name: "SHA-256" },
       },
     },
     {
-      name: 'ES256',
+      name: "ES256",
       expected: {
-        name: 'ECDSA',
-        namedCurve: 'P-256',
-        hash: { name: 'SHA-256' },
+        name: "ECDSA",
+        namedCurve: "P-256",
+        hash: { name: "SHA-256" },
       },
     },
-  ]
-  it('should return correct algorithm object', () => {
+  ];
+  it("should return correct algorithm object", () => {
     cases.forEach((c) => {
-      expect(getAlgorithm(c.name as any)).toEqual(c.expected)
-    })
-  })
-  it('should throw if invalid alg claim', () => {
-    expect(() => getAlgorithm('EdDSA' as any)).toThrowError(new Error('Invalid alg claim'))
-  })
-})
+      expect(getAlgorithm(c.name as any)).toEqual(c.expected);
+    });
+  });
+  it("should throw if invalid alg claim", () => {
+    expect(() => getAlgorithm("EdDSA" as any)).toThrowError(
+      new Error("Invalid alg claim")
+    );
+  });
+});
 
-describe('getCodeChallengeAndMethod', () => {
+describe("getCodeChallengeAndMethod", () => {
   const testCases = [
     {
-      name: 'should append /PASSWORD_RECOVERY to stored code_verifier',
+      name: "should append /PASSWORD_RECOVERY to stored code_verifier",
       isPasswordRecovery: true,
     },
     {
-      name: 'should not append /PASSWORD_RECOVERY for other flows',
+      name: "should not append /PASSWORD_RECOVERY for other flows",
       isPasswordRecovery: false,
     },
-  ]
+  ];
 
-  test.each(testCases)('$name', async ({ isPasswordRecovery }) => {
+  test.each(testCases)("$name", async ({ isPasswordRecovery }) => {
     const mockStorage = {
       getItem: jest.fn(),
       setItem: jest.fn(),
       removeItem: jest.fn(),
-    }
+    };
 
-    const [codeChallenge, codeChallengeMethod] = await getCodeChallengeAndMethod(
-      mockStorage,
-      'test-storage-key',
-      isPasswordRecovery
-    )
+    const [codeChallenge, codeChallengeMethod] =
+      await getCodeChallengeAndMethod(
+        mockStorage,
+        "test-storage-key",
+        isPasswordRecovery
+      );
 
-    const setItemCall = mockStorage.setItem.mock.calls[0]
-    expect(setItemCall[0]).toBe('test-storage-key-code-verifier')
-    const storedValue = JSON.parse(setItemCall[1])
+    const setItemCall = mockStorage.setItem.mock.calls[0];
+    expect(setItemCall[0]).toBe("test-storage-key-code-verifier");
+    const storedValue = JSON.parse(setItemCall[1]);
     if (isPasswordRecovery) {
-      expect(storedValue).toContain('/PASSWORD_RECOVERY')
+      expect(storedValue).toContain("/PASSWORD_RECOVERY");
     } else {
-      expect(storedValue).not.toContain('/PASSWORD_RECOVERY')
+      expect(storedValue).not.toContain("/PASSWORD_RECOVERY");
     }
-    expect(codeChallenge).toBeDefined()
-    expect(codeChallengeMethod).toBeDefined()
-  })
-})
+    expect(codeChallenge).toBeDefined();
+    expect(codeChallengeMethod).toBeDefined();
+  });
+});
 
-describe('validateUUID', () => {
+describe("validateUUID", () => {
   const testCases = [
     {
-      name: 'should accept valid UUID',
-      input: '123e4567-e89b-12d3-a456-426614174000',
+      name: "should accept valid UUID",
+      input: "123e4567-e89b-12d3-a456-426614174000",
       shouldThrow: false,
     },
     {
-      name: 'should reject invalid UUID format',
-      input: 'not-a-uuid',
+      name: "should reject invalid UUID format",
+      input: "not-a-uuid",
       shouldThrow: true,
     },
     {
-      name: 'should reject UUID with wrong length',
-      input: '123e4567-e89b-12d3-a456',
+      name: "should reject UUID with wrong length",
+      input: "123e4567-e89b-12d3-a456",
       shouldThrow: true,
     },
     {
-      name: 'should reject UUID with invalid characters',
-      input: '123e4567-e89b-12d3-a456-42661417400g',
+      name: "should reject UUID with invalid characters",
+      input: "123e4567-e89b-12d3-a456-42661417400g",
       shouldThrow: true,
     },
-  ]
+  ];
 
-  test.each(testCases)('$name', ({ input, shouldThrow }) => {
+  test.each(testCases)("$name", ({ input, shouldThrow }) => {
     if (shouldThrow) {
       expect(() => validateUUID(input)).toThrow(
-        '@supabase/auth-js: Expected parameter to be UUID but is not'
-      )
+        "@supabase/auth-js: Expected parameter to be UUID but is not"
+      );
     } else {
-      expect(() => validateUUID(input)).not.toThrow()
+      expect(() => validateUUID(input)).not.toThrow();
     }
-  })
-})
+  });
+});

@@ -1,5 +1,5 @@
-import GoTrueClient from './GoTrueClient'
+import GoTrueClient from "./GoTrueClient";
 
-const AuthClient = GoTrueClient
+const AuthClient = GoTrueClient;
 
-export default AuthClient
+export default AuthClient;

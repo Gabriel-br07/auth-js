@@ -1,5 +1,5 @@
-import { WeakPasswordReasons } from './types'
-import { ErrorCode } from './error-codes'
+import { WeakPasswordReasons } from "./types";
+import { ErrorCode } from "./error-codes";
 
 export class AuthError extends Error {
   /**
@@ -8,88 +8,105 @@ export class AuthError extends Error {
    * before a response is received will not have one present. In that
    * case {@link #status} will also be undefined.
    */
-  code: ErrorCode | (string & {}) | undefined
+  code: ErrorCode | (string & {}) | undefined;
 
   /** HTTP status code that caused the error. */
-  status: number | undefined
+  status: number | undefined;
 
-  protected __isAuthError = true
+  protected __isAuthError = true;
 
   constructor(message: string, status?: number, code?: string) {
-    super(message)
-    this.name = 'AuthError'
-    this.status = status
-    this.code = code
+    super(message);
+    this.name = "AuthError";
+    this.status = status;
+    this.code = code;
   }
 }
 
 export function isAuthError(error: unknown): error is AuthError {
-  return typeof error === 'object' && error !== null && '__isAuthError' in error
+  return (
+    typeof error === "object" && error !== null && "__isAuthError" in error
+  );
 }
 
 export class AuthApiError extends AuthError {
-  status: number
+  status: number;
 
   constructor(message: string, status: number, code: string | undefined) {
-    super(message, status, code)
-    this.name = 'AuthApiError'
-    this.status = status
-    this.code = code
+    super(message, status, code);
+    this.name = "AuthApiError";
+    this.status = status;
+    this.code = code;
   }
 }
 
 export function isAuthApiError(error: unknown): error is AuthApiError {
-  return isAuthError(error) && error.name === 'AuthApiError'
+  return isAuthError(error) && error.name === "AuthApiError";
 }
 
 export class AuthUnknownError extends AuthError {
-  originalError: unknown
+  originalError: unknown;
 
   constructor(message: string, originalError: unknown) {
-    super(message)
-    this.name = 'AuthUnknownError'
-    this.originalError = originalError
+    super(message);
+    this.name = "AuthUnknownError";
+    this.originalError = originalError;
   }
 }
 
 export class CustomAuthError extends AuthError {
-  name: string
-  status: number
+  name: string;
+  status: number;
 
-  constructor(message: string, name: string, status: number, code: string | undefined) {
-    super(message, status, code)
-    this.name = name
-    this.status = status
+  constructor(
+    message: string,
+    name: string,
+    status: number,
+    code: string | undefined
+  ) {
+    super(message, status, code);
+    this.name = name;
+    this.status = status;
   }
 }
 
 export class AuthSessionMissingError extends CustomAuthError {
   constructor() {
-    super('Auth session missing!', 'AuthSessionMissingError', 400, undefined)
+    super("Auth session missing!", "AuthSessionMissingError", 400, undefined);
   }
 }
 
-export function isAuthSessionMissingError(error: any): error is AuthSessionMissingError {
-  return isAuthError(error) && error.name === 'AuthSessionMissingError'
+export function isAuthSessionMissingError(
+  error: any
+): error is AuthSessionMissingError {
+  return isAuthError(error) && error.name === "AuthSessionMissingError";
 }
 
 export class AuthInvalidTokenResponseError extends CustomAuthError {
   constructor() {
-    super('Auth session or user missing', 'AuthInvalidTokenResponseError', 500, undefined)
+    super(
+      "Auth session or user missing",
+      "AuthInvalidTokenResponseError",
+      500,
+      undefined
+    );
   }
 }
 
 export class AuthInvalidCredentialsError extends CustomAuthError {
   constructor(message: string) {
-    super(message, 'AuthInvalidCredentialsError', 400, undefined)
+    super(message, "AuthInvalidCredentialsError", 400, undefined);
   }
 }
 
 export class AuthImplicitGrantRedirectError extends CustomAuthError {
-  details: { error: string; code: string } | null = null
-  constructor(message: string, details: { error: string; code: string } | null = null) {
-    super(message, 'AuthImplicitGrantRedirectError', 500, undefined)
-    this.details = details
+  details: { error: string; code: string } | null = null;
+  constructor(
+    message: string,
+    details: { error: string; code: string } | null = null
+  ) {
+    super(message, "AuthImplicitGrantRedirectError", 500, undefined);
+    this.details = details;
   }
 
   toJSON() {
@@ -98,22 +115,25 @@ export class AuthImplicitGrantRedirectError extends CustomAuthError {
       message: this.message,
       status: this.status,
       details: this.details,
-    }
+    };
   }
 }
 
 export function isAuthImplicitGrantRedirectError(
   error: any
 ): error is AuthImplicitGrantRedirectError {
-  return isAuthError(error) && error.name === 'AuthImplicitGrantRedirectError'
+  return isAuthError(error) && error.name === "AuthImplicitGrantRedirectError";
 }
 
 export class AuthPKCEGrantCodeExchangeError extends CustomAuthError {
-  details: { error: string; code: string } | null = null
+  details: { error: string; code: string } | null = null;
 
-  constructor(message: string, details: { error: string; code: string } | null = null) {
-    super(message, 'AuthPKCEGrantCodeExchangeError', 500, undefined)
-    this.details = details
+  constructor(
+    message: string,
+    details: { error: string; code: string } | null = null
+  ) {
+    super(message, "AuthPKCEGrantCodeExchangeError", 500, undefined);
+    this.details = details;
   }
 
   toJSON() {
@@ -122,18 +142,20 @@ export class AuthPKCEGrantCodeExchangeError extends CustomAuthError {
       message: this.message,
       status: this.status,
       details: this.details,
-    }
+    };
   }
 }
 
 export class AuthRetryableFetchError extends CustomAuthError {
   constructor(message: string, status: number) {
-    super(message, 'AuthRetryableFetchError', status, undefined)
+    super(message, "AuthRetryableFetchError", status, undefined);
   }
 }
 
-export function isAuthRetryableFetchError(error: unknown): error is AuthRetryableFetchError {
-  return isAuthError(error) && error.name === 'AuthRetryableFetchError'
+export function isAuthRetryableFetchError(
+  error: unknown
+): error is AuthRetryableFetchError {
+  return isAuthError(error) && error.name === "AuthRetryableFetchError";
 }
 
 /**
@@ -145,21 +167,23 @@ export class AuthWeakPasswordError extends CustomAuthError {
   /**
    * Reasons why the password is deemed weak.
    */
-  reasons: WeakPasswordReasons[]
+  reasons: WeakPasswordReasons[];
 
   constructor(message: string, status: number, reasons: string[]) {
-    super(message, 'AuthWeakPasswordError', status, 'weak_password')
+    super(message, "AuthWeakPasswordError", status, "weak_password");
 
-    this.reasons = reasons
+    this.reasons = reasons;
   }
 }
 
-export function isAuthWeakPasswordError(error: unknown): error is AuthWeakPasswordError {
-  return isAuthError(error) && error.name === 'AuthWeakPasswordError'
+export function isAuthWeakPasswordError(
+  error: unknown
+): error is AuthWeakPasswordError {
+  return isAuthError(error) && error.name === "AuthWeakPasswordError";
 }
 
 export class AuthInvalidJwtError extends CustomAuthError {
   constructor(message: string) {
-    super(message, 'AuthInvalidJwtError', 400, 'invalid_jwt')
+    super(message, "AuthInvalidJwtError", 400, "invalid_jwt");
   }
 }

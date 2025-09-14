@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
+import { defineConfig } from 'vite'
+import path from 'path'
 
-const path = require('path')
-
-module.exports = {
+export default defineConfig({
   server: {
     port: 3000,
     host: true,
@@ -24,4 +24,4 @@ module.exports = {
   define: {
     global: 'globalThis',
   }
-}
+})
