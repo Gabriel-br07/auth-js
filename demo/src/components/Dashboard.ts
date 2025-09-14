@@ -1,4 +1,4 @@
-// Dashboard Principal - Versão Simplificada (apenas usuários cadastrados)
+// Dashboard Principal - Interface principal para usuários autenticados
 import { authSystem } from '../contexts/AuthSystem';
 import UsersListComponent from './UsersList';
 
