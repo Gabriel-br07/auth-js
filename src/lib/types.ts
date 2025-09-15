@@ -1,44 +1,44 @@
-import { EIP1193Provider } from './web3/ethereum'
-import { AuthError } from './errors'
-import { Fetch } from './fetch'
-import type { SolanaSignInInput, SolanaSignInOutput } from './web3/solana'
-import { EthereumSignInInput, Hex } from './web3/ethereum'
+import { EIP1193Provider } from "./web3/ethereum";
+import { AuthError } from "./errors";
+import { Fetch } from "./fetch";
+import type { SolanaSignInInput, SolanaSignInOutput } from "./web3/solana";
+import { EthereumSignInInput, Hex } from "./web3/ethereum";
 
 /** One of the providers supported by GoTrue. */
 export type Provider =
-  | 'apple'
-  | 'azure'
-  | 'bitbucket'
-  | 'discord'
-  | 'facebook'
-  | 'figma'
-  | 'github'
-  | 'gitlab'
-  | 'google'
-  | 'kakao'
-  | 'keycloak'
-  | 'linkedin'
-  | 'linkedin_oidc'
-  | 'notion'
-  | 'slack'
-  | 'slack_oidc'
-  | 'spotify'
-  | 'twitch'
-  | 'twitter'
-  | 'workos'
-  | 'zoom'
-  | 'fly'
+  | "apple"
+  | "azure"
+  | "bitbucket"
+  | "discord"
+  | "facebook"
+  | "figma"
+  | "github"
+  | "gitlab"
+  | "google"
+  | "kakao"
+  | "keycloak"
+  | "linkedin"
+  | "linkedin_oidc"
+  | "notion"
+  | "slack"
+  | "slack_oidc"
+  | "spotify"
+  | "twitch"
+  | "twitter"
+  | "workos"
+  | "zoom"
+  | "fly";
 
-export type AuthChangeEventMFA = 'MFA_CHALLENGE_VERIFIED'
+export type AuthChangeEventMFA = "MFA_CHALLENGE_VERIFIED";
 
 export type AuthChangeEvent =
-  | 'INITIAL_SESSION'
-  | 'PASSWORD_RECOVERY'
-  | 'SIGNED_IN'
-  | 'SIGNED_OUT'
-  | 'TOKEN_REFRESHED'
-  | 'USER_UPDATED'
-  | AuthChangeEventMFA
+  | "INITIAL_SESSION"
+  | "PASSWORD_RECOVERY"
+  | "SIGNED_IN"
+  | "SIGNED_OUT"
+  | "TOKEN_REFRESHED"
+  | "USER_UPDATED"
+  | AuthChangeEventMFA;
 
 /**
  * Provide your own global lock implementation instead of the default
@@ -55,23 +55,27 @@ export type AuthChangeEvent =
  *                       acquired after this much time (ms).
  * @param fn The operation to execute when the lock is acquired.
  */
-export type LockFunc = <R>(name: string, acquireTimeout: number, fn: () => Promise<R>) => Promise<R>
+export type LockFunc = <R>(
+  name: string,
+  acquireTimeout: number,
+  fn: () => Promise<R>
+) => Promise<R>;
 
 export type GoTrueClientOptions = {
   /* The URL of the GoTrue server. */
-  url?: string
+  url?: string;
   /* Any additional headers to send to the GoTrue server. */
-  headers?: { [key: string]: string }
+  headers?: { [key: string]: string };
   /* Optional key name used for storing tokens in local storage. */
-  storageKey?: string
+  storageKey?: string;
   /* Set to "true" if you want to automatically detects OAuth grants in the URL and signs in the user. */
-  detectSessionInUrl?: boolean
+  detectSessionInUrl?: boolean;
   /* Set to "true" if you want to automatically refresh the token before expiring. */
-  autoRefreshToken?: boolean
+  autoRefreshToken?: boolean;
   /* Set to "true" if you want to automatically save the user session into local storage. If set to false, session will just be saved in memory. */
-  persistSession?: boolean
+  persistSession?: boolean;
   /* Provide your own local storage implementation to use instead of the browser's local storage. */
-  storage?: SupportedStorage
+  storage?: SupportedStorage;
   /**
    * Stores the user object in a separate storage location from the rest of the session data. When non-null, `storage` will only store a JSON object containing the access and refresh token and some adjacent metadata, while `userStorage` will only contain the user object under the key `storageKey + '-user'`.
    *
@@ -79,64 +83,68 @@ export type GoTrueClientOptions = {
    *
    * @experimental
    */
-  userStorage?: SupportedStorage
+  userStorage?: SupportedStorage;
   /* A custom fetch implementation. */
-  fetch?: Fetch
+  fetch?: Fetch;
   /* If set to 'pkce' PKCE flow. Defaults to the 'implicit' flow otherwise */
-  flowType?: AuthFlowType
+  flowType?: AuthFlowType;
   /* If debug messages are emitted. Can be used to inspect the behavior of the library. If set to a function, the provided function will be used instead of `console.log()` to perform the logging. */
-  debug?: boolean | ((message: string, ...args: any[]) => void)
+  debug?: boolean | ((message: string, ...args: any[]) => void);
   /**
    * Provide your own locking mechanism based on the environment. By default no locking is done at this time.
    *
    * @experimental
    */
-  lock?: LockFunc
+  lock?: LockFunc;
   /**
    * Set to "true" if there is a custom authorization header set globally.
    * @experimental
    */
-  hasCustomAuthorizationHeader?: boolean
-}
+  hasCustomAuthorizationHeader?: boolean;
+};
 
-export type WeakPasswordReasons = 'length' | 'characters' | 'pwned' | (string & {})
+export type WeakPasswordReasons =
+  | "length"
+  | "characters"
+  | "pwned"
+  | (string & {});
 export type WeakPassword = {
-  reasons: WeakPasswordReasons[]
-  message: string
-}
+  reasons: WeakPasswordReasons[];
+  message: string;
+};
 
 export type AuthResponse =
   | {
       data: {
-        user: User | null
-        session: Session | null
-      }
-      error: null
+        user: User | null;
+        session: Session | null;
+      };
+      error: null;
     }
   | {
       data: {
-        user: null
-        session: null
-      }
-      error: AuthError
-    }
+        user: null;
+        session: null;
+      };
+      error: AuthError;
+    };
 
 export type AuthResponsePassword =
   | {
       data: {
-        user: User | null
-        session: Session | null
-        weak_password?: WeakPassword | null
-      }
-      error: null
+        user: User | null;
+        session: Session | null;
+        weak_password?: WeakPassword | null;
+      };
+      error: null;
     }
   | {
       data: {
-        user: null
-        session: null
-      }
-      error: AuthError
-    }
+        user: null;
+        session: null;
+      };
+      error: AuthError;
+    };
 
 /**
  * AuthOtpResponse is returned when OTP is used.
@@ -145,63 +153,63 @@ export type AuthResponsePassword =
  */
 export type AuthOtpResponse =
   | {
-      data: { user: null; session: null; messageId?: string | null }
-      error: null
+      data: { user: null; session: null; messageId?: string | null };
+      error: null;
     }
   | {
-      data: { user: null; session: null; messageId?: string | null }
-      error: AuthError
-    }
+      data: { user: null; session: null; messageId?: string | null };
+      error: AuthError;
+    };
 
 export type AuthTokenResponse =
   | {
       data: {
-        user: User
-        session: Session
-      }
-      error: null
+        user: User;
+        session: Session;
+      };
+      error: null;
     }
   | {
       data: {
-        user: null
-        session: null
-      }
-      error: AuthError
-    }
+        user: null;
+        session: null;
+      };
+      error: AuthError;
+    };
 
 export type AuthTokenResponsePassword =
   | {
       data: {
-        user: User
-        session: Session
-        weakPassword?: WeakPassword
-      }
-      error: null
+        user: User;
+        session: Session;
+        weakPassword?: WeakPassword;
+      };
+      error: null;
     }
   | {
       data: {
-        user: null
-        session: null
-        weakPassword?: null
-      }
-      error: AuthError
-    }
+        user: null;
+        session: null;
+        weakPassword?: null;
+      };
+      error: AuthError;
+    };
 
 export type OAuthResponse =
   | {
       data: {
-        provider: Provider
-        url: string
-      }
-      error: null
+        provider: Provider;
+        url: string;
+      };
+      error: null;
     }
   | {
       data: {
-        provider: Provider
-        url: null
-      }
-      error: AuthError
-    }
+        provider: Provider;
+        url: null;
+      };
+      error: AuthError;
+    };
 
 export type SSOResponse =
   | {
@@ -213,61 +221,61 @@ export type SSOResponse =
          * On browsers you can set the URL to `window.location.href` to take
          * the user to the authentication flow.
          */
-        url: string
-      }
-      error: null
+        url: string;
+      };
+      error: null;
     }
   | {
-      data: null
-      error: AuthError
-    }
+      data: null;
+      error: AuthError;
+    };
 
 export type UserResponse =
   | {
       data: {
-        user: User
-      }
-      error: null
+        user: User;
+      };
+      error: null;
     }
   | {
       data: {
-        user: null
-      }
-      error: AuthError
-    }
+        user: null;
+      };
+      error: AuthError;
+    };
 
 export interface Session {
   /**
    * The oauth provider token. If present, this can be used to make external API requests to the oauth provider used.
    */
-  provider_token?: string | null
+  provider_token?: string | null;
   /**
    * The oauth provider refresh token. If present, this can be used to refresh the provider_token via the oauth provider's API.
    * Not all oauth providers return a provider refresh token. If the provider_refresh_token is missing, please refer to the oauth provider's documentation for information on how to obtain the provider refresh token.
    */
-  provider_refresh_token?: string | null
+  provider_refresh_token?: string | null;
   /**
    * The access token jwt. It is recommended to set the JWT_EXPIRY to a shorter expiry value.
    */
-  access_token: string
+  access_token: string;
   /**
    * A one-time used refresh token that never expires.
    */
-  refresh_token: string
+  refresh_token: string;
   /**
    * The number of seconds until the token expires (since it was issued). Returned when a login is confirmed.
    */
-  expires_in: number
+  expires_in: number;
   /**
    * A timestamp of when the token will expire. Returned when a login is confirmed.
    */
-  expires_at?: number
-  token_type: string
+  expires_at?: number;
+  token_type: string;
 
   /**
    * When using a separate user storage, accessing properties of this object will throw an error.
    */
-  user: User
+  user: User;
 }
 
 /**
@@ -280,26 +288,26 @@ export interface Session {
  */
 export interface AMREntry {
   /** Authentication method name. */
-  method: 'password' | 'otp' | 'oauth' | 'mfa/totp' | (string & {})
+  method: "password" | "otp" | "oauth" | "mfa/totp" | (string & {});
 
   /**
    * Timestamp when the method was successfully used. Represents number of
    * seconds since 1st January 1970 (UNIX epoch) in UTC.
    */
-  timestamp: number
+  timestamp: number;
 }
 
 export interface UserIdentity {
-  id: string
-  user_id: string
+  id: string;
+  user_id: string;
   identity_data?: {
-    [key: string]: any
-  }
-  identity_id: string
-  provider: string
-  created_at?: string
-  last_sign_in_at?: string
-  updated_at?: string
+    [key: string]: any;
+  };
+  identity_id: string;
+  provider: string;
+  created_at?: string;
+  last_sign_in_at?: string;
+  updated_at?: string;
 }
 
 /**
@@ -311,82 +319,82 @@ export interface UserIdentity {
  */
 export interface Factor {
   /** ID of the factor. */
-  id: string
+  id: string;
 
   /** Friendly name of the factor, useful to disambiguate between multiple factors. */
-  friendly_name?: string
+  friendly_name?: string;
 
   /**
    * Type of factor. `totp` and `phone` supported with this version
    */
-  factor_type: 'totp' | 'phone' | (string & {})
+  factor_type: "totp" | "phone" | (string & {});
 
   /** Factor's status. */
-  status: 'verified' | 'unverified'
+  status: "verified" | "unverified";
 
-  created_at: string
-  updated_at: string
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UserAppMetadata {
-  provider?: string
-  [key: string]: any
+  provider?: string;
+  [key: string]: any;
 }
 
 export interface UserMetadata {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface User {
-  id: string
-  app_metadata: UserAppMetadata
-  user_metadata: UserMetadata
-  aud: string
-  confirmation_sent_at?: string
-  recovery_sent_at?: string
-  email_change_sent_at?: string
-  new_email?: string
-  new_phone?: string
-  invited_at?: string
-  action_link?: string
-  email?: string
-  phone?: string
-  created_at: string
-  confirmed_at?: string
-  email_confirmed_at?: string
-  phone_confirmed_at?: string
-  last_sign_in_at?: string
-  role?: string
-  updated_at?: string
-  identities?: UserIdentity[]
-  is_anonymous?: boolean
-  is_sso_user?: boolean
-  factors?: Factor[]
-  deleted_at?: string
+  id: string;
+  app_metadata: UserAppMetadata;
+  user_metadata: UserMetadata;
+  aud: string;
+  confirmation_sent_at?: string;
+  recovery_sent_at?: string;
+  email_change_sent_at?: string;
+  new_email?: string;
+  new_phone?: string;
+  invited_at?: string;
+  action_link?: string;
+  email?: string;
+  phone?: string;
+  created_at: string;
+  confirmed_at?: string;
+  email_confirmed_at?: string;
+  phone_confirmed_at?: string;
+  last_sign_in_at?: string;
+  role?: string;
+  updated_at?: string;
+  identities?: UserIdentity[];
+  is_anonymous?: boolean;
+  is_sso_user?: boolean;
+  factors?: Factor[];
+  deleted_at?: string;
 }
 
 export interface UserAttributes {
   /**
    * The user's email.
    */
-  email?: string
+  email?: string;
 
   /**
    * The user's phone.
    */
-  phone?: string
+  phone?: string;
 
   /**
    * The user's password.
    */
-  password?: string
+  password?: string;
 
   /**
    * The nonce sent for reauthentication if the user's password is to be updated.
    *
    * Call reauthenticate() to obtain the nonce first.
    */
-  nonce?: string
+  nonce?: string;
 
   /**
    * A custom data object to store the user's metadata. This maps to the `auth.users.raw_user_meta_data` column.
@@ -394,10 +402,10 @@ export interface UserAttributes {
    * The `data` should be a JSON object that includes user-specific info, such as their first and last name.
    *
    */
-  data?: object
+  data?: object;
 }
 
-export interface AdminUserAttributes extends Omit<UserAttributes, 'data'> {
+export interface AdminUserAttributes extends Omit<UserAttributes, "data"> {
   /**
    * A custom data object to store the user's metadata. This maps to the `auth.users.raw_user_meta_data` column.
    *
@@ -408,7 +416,7 @@ export interface AdminUserAttributes extends Omit<UserAttributes, 'data'> {
    * this attribute is used instead of UserAttributes data.
    *
    */
-  user_metadata?: object
+  user_metadata?: object;
 
   /**
    * A custom data object to store the user's application specific metadata. This maps to the `auth.users.app_metadata` column.
@@ -418,21 +426,21 @@ export interface AdminUserAttributes extends Omit<UserAttributes, 'data'> {
    * The `app_metadata` should be a JSON object that includes app-specific info, such as identity providers, roles, and other
    * access control information.
    */
-  app_metadata?: object
+  app_metadata?: object;
 
   /**
    * Confirms the user's email address if set to true.
    *
    * Only a service role can modify.
    */
-  email_confirm?: boolean
+  email_confirm?: boolean;
 
   /**
    * Confirms the user's phone number if set to true.
    *
    * Only a service role can modify.
    */
-  phone_confirm?: boolean
+  phone_confirm?: boolean;
 
   /**
    * Determines how long a user is banned for.
@@ -444,7 +452,7 @@ export interface AdminUserAttributes extends Omit<UserAttributes, 'data'> {
    *
    * Setting the ban duration to 'none' lifts the ban on the user.
    */
-  ban_duration?: string | 'none'
+  ban_duration?: string | "none";
 
   /**
    * The `role` claim set in the user's access token JWT.
@@ -453,7 +461,7 @@ export interface AdminUserAttributes extends Omit<UserAttributes, 'data'> {
    *
    * Setting this role to `service_role` is not recommended as it grants the user admin privileges.
    */
-  role?: string
+  role?: string;
 
   /**
    * The `password_hash` for the user's password.
@@ -462,29 +470,29 @@ export interface AdminUserAttributes extends Omit<UserAttributes, 'data'> {
    *
    * Supports bcrypt, scrypt (firebase), and argon2 password hashes.
    */
-  password_hash?: string
+  password_hash?: string;
 
   /**
    * The `id` for the user.
    *
    * Allows you to overwrite the default `id` set for the user.
    */
-  id?: string
+  id?: string;
 }
 
 export interface Subscription {
   /**
    * The subscriber UUID. This will be set by the client.
    */
-  id: string
+  id: string;
   /**
    * The function to call every time there is an event. eg: (eventName) => {}
    */
-  callback: (event: AuthChangeEvent, session: Session | null) => void
+  callback: (event: AuthChangeEvent, session: Session | null) => void;
   /**
    * Call this to remove the listener.
    */
-  unsubscribe: () => void
+  unsubscribe: () => void;
 }
 
 export type SignInAnonymouslyCredentials = {
@@ -494,353 +502,370 @@ export type SignInAnonymouslyCredentials = {
      *
      * The `data` should be a JSON object that includes user-specific info, such as their first and last name.
      */
-    data?: object
+    data?: object;
     /** Verification token received when the user completes the captcha on the site. */
-    captchaToken?: string
-  }
-}
+    captchaToken?: string;
+  };
+};
 
 export type SignUpWithPasswordCredentials =
   | {
       /** The user's email address. */
-      email: string
+      email: string;
       /** The user's password. */
-      password: string
+      password: string;
       options?: {
         /** The redirect url embedded in the email link */
-        emailRedirectTo?: string
+        emailRedirectTo?: string;
         /**
          * A custom data object to store the user's metadata. This maps to the `auth.users.raw_user_meta_data` column.
          *
          * The `data` should be a JSON object that includes user-specific info, such as their first and last name.
          */
-        data?: object
+        data?: object;
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
+        captchaToken?: string;
+      };
     }
   | {
       /** The user's phone number. */
-      phone: string
+      phone: string;
       /** The user's password. */
-      password: string
+      password: string;
       options?: {
         /**
          * A custom data object to store the user's metadata. This maps to the `auth.users.raw_user_meta_data` column.
          *
          * The `data` should be a JSON object that includes user-specific info, such as their first and last name.
          */
-        data?: object
+        data?: object;
         /** Verification token received when the user completes the captcha on the site. Requires a configured WhatsApp sender on Twilio */
-        captchaToken?: string
+        captchaToken?: string;
         /** Messaging channel to use (e.g. whatsapp or sms) */
-        channel?: 'sms' | 'whatsapp'
-      }
-    }
+        channel?: "sms" | "whatsapp";
+      };
+    };
 
 export type SignInWithPasswordCredentials =
   | {
       /** The user's email address. */
-      email: string
+      email: string;
       /** The user's password. */
-      password: string
+      password: string;
       options?: {
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
+        captchaToken?: string;
+      };
     }
   | {
       /** The user's phone number. */
-      phone: string
+      phone: string;
       /** The user's password. */
-      password: string
+      password: string;
       options?: {
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
-    }
+        captchaToken?: string;
+      };
+    };
 
 export type SignInWithPasswordlessCredentials =
   | {
       /** The user's email address. */
-      email: string
+      email: string;
       options?: {
         /** The redirect url embedded in the email link */
-        emailRedirectTo?: string
+        emailRedirectTo?: string;
         /** If set to false, this method will not create a new user. Defaults to true. */
-        shouldCreateUser?: boolean
+        shouldCreateUser?: boolean;
         /**
          * A custom data object to store the user's metadata. This maps to the `auth.users.raw_user_meta_data` column.
          *
          * The `data` should be a JSON object that includes user-specific info, such as their first and last name.
          */
-        data?: object
+        data?: object;
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
+        captchaToken?: string;
+      };
     }
   | {
       /** The user's phone number. */
-      phone: string
+      phone: string;
       options?: {
         /** If set to false, this method will not create a new user. Defaults to true. */
-        shouldCreateUser?: boolean
+        shouldCreateUser?: boolean;
         /**
          * A custom data object to store the user's metadata. This maps to the `auth.users.raw_user_meta_data` column.
          *
          * The `data` should be a JSON object that includes user-specific info, such as their first and last name.
          */
-        data?: object
+        data?: object;
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
+        captchaToken?: string;
         /** Messaging channel to use (e.g. whatsapp or sms) */
-        channel?: 'sms' | 'whatsapp'
-      }
-    }
+        channel?: "sms" | "whatsapp";
+      };
+    };
 
-export type AuthFlowType = 'implicit' | 'pkce'
+export type AuthFlowType = "implicit" | "pkce";
 export type SignInWithOAuthCredentials = {
   /** One of the providers supported by GoTrue. */
-  provider: Provider
+  provider: Provider;
   options?: {
     /** A URL to send the user to after they are confirmed. */
-    redirectTo?: string
+    redirectTo?: string;
     /** A space-separated list of scopes granted to the OAuth application. */
-    scopes?: string
+    scopes?: string;
     /** An object of query params */
-    queryParams?: { [key: string]: string }
+    queryParams?: { [key: string]: string };
     /** If set to true does not immediately redirect the current browser context to visit the OAuth authorization page for the provider. */
-    skipBrowserRedirect?: boolean
-  }
-}
+    skipBrowserRedirect?: boolean;
+  };
+};
 
 export type SignInWithIdTokenCredentials = {
   /** Provider name or OIDC `iss` value identifying which provider should be used to verify the provided token. Supported names: `google`, `apple`, `azure`, `facebook`, `kakao`, `keycloak` (deprecated). */
-  provider: 'google' | 'apple' | 'azure' | 'facebook' | 'kakao' | (string & {})
+  provider: "google" | "apple" | "azure" | "facebook" | "kakao" | (string & {});
   /** OIDC ID token issued by the specified provider. The `iss` claim in the ID token must match the supplied provider. Some ID tokens contain an `at_hash` which require that you provide an `access_token` value to be accepted properly. If the token contains a `nonce` claim you must supply the nonce used to obtain the ID token. */
-  token: string
+  token: string;
   /** If the ID token contains an `at_hash` claim, then the hash of this value is compared to the value in the ID token. */
-  access_token?: string
+  access_token?: string;
   /** If the ID token contains a `nonce` claim, then the hash of this value is compared to the value in the ID token. */
-  nonce?: string
+  nonce?: string;
   options?: {
     /** Verification token received when the user completes the captcha on the site. */
-    captchaToken?: string
-  }
-}
+    captchaToken?: string;
+  };
+};
 
 export type SolanaWallet = {
-  signIn?: (...inputs: SolanaSignInInput[]) => Promise<SolanaSignInOutput | SolanaSignInOutput[]>
+  signIn?: (
+    ...inputs: SolanaSignInInput[]
+  ) => Promise<SolanaSignInOutput | SolanaSignInOutput[]>;
   publicKey?: {
-    toBase58: () => string
-  } | null
+    toBase58: () => string;
+  } | null;
 
-  signMessage?: (message: Uint8Array, encoding?: 'utf8' | string) => Promise<Uint8Array> | undefined
-}
+  signMessage?: (
+    message: Uint8Array,
+    encoding?: "utf8" | string
+  ) => Promise<Uint8Array> | undefined;
+};
 
 export type SolanaWeb3Credentials =
   | {
-      chain: 'solana'
+      chain: "solana";
 
       /** Wallet interface to use. If not specified will default to `window.solana`. */
-      wallet?: SolanaWallet
+      wallet?: SolanaWallet;
 
       /** Optional statement to include in the Sign in with Solana message. Must not include new line characters. Most wallets like Phantom **require specifying a statement!** */
-      statement?: string
+      statement?: string;
 
       options?: {
         /** URL to use with the wallet interface. Some wallets do not allow signing a message for URLs different from the current page. */
-        url?: string
+        url?: string;
 
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
+        captchaToken?: string;
 
         signInWithSolana?: Partial<
-          Omit<SolanaSignInInput, 'version' | 'chain' | 'domain' | 'uri' | 'statement'>
-        >
-      }
+          Omit<
+            SolanaSignInInput,
+            "version" | "chain" | "domain" | "uri" | "statement"
+          >
+        >;
+      };
     }
   | {
-      chain: 'solana'
+      chain: "solana";
 
       /** Sign in with Solana compatible message. Must include `Issued At`, `URI` and `Version`. */
-      message: string
+      message: string;
 
       /** Ed25519 signature of the message. */
-      signature: Uint8Array
+      signature: Uint8Array;
 
       options?: {
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
-    }
+        captchaToken?: string;
+      };
+    };
 
-export type EthereumWallet = EIP1193Provider
+export type EthereumWallet = EIP1193Provider;
 
 export type EthereumWeb3Credentials =
   | {
-      chain: 'ethereum'
+      chain: "ethereum";
 
       /** Wallet interface to use. If not specified will default to `window.solana`. */
-      wallet?: EthereumWallet
+      wallet?: EthereumWallet;
 
       /** Optional statement to include in the Sign in with Solana message. Must not include new line characters. Most wallets like Phantom **require specifying a statement!** */
-      statement?: string
+      statement?: string;
 
       options?: {
         /** URL to use with the wallet interface. Some wallets do not allow signing a message for URLs different from the current page. */
-        url?: string
+        url?: string;
 
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
+        captchaToken?: string;
 
         signInWithEthereum?: Partial<
-          Omit<EthereumSignInInput, 'version' | 'domain' | 'uri' | 'statement'>
-        >
-      }
+          Omit<EthereumSignInInput, "version" | "domain" | "uri" | "statement">
+        >;
+      };
     }
   | {
-      chain: 'ethereum'
+      chain: "ethereum";
 
       /** Sign in with Ethereum compatible message. Must include `Issued At`, `URI` and `Version`. */
-      message: string
+      message: string;
 
       /** Ed25519 signature of the message. */
-      signature: Hex
+      signature: Hex;
 
       options?: {
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
-    }
+        captchaToken?: string;
+      };
+    };
 
-export type Web3Credentials = SolanaWeb3Credentials | EthereumWeb3Credentials
+export type Web3Credentials = SolanaWeb3Credentials | EthereumWeb3Credentials;
 
-export type VerifyOtpParams = VerifyMobileOtpParams | VerifyEmailOtpParams | VerifyTokenHashParams
+export type VerifyOtpParams =
+  | VerifyMobileOtpParams
+  | VerifyEmailOtpParams
+  | VerifyTokenHashParams;
 export interface VerifyMobileOtpParams {
   /** The user's phone number. */
-  phone: string
+  phone: string;
   /** The otp sent to the user's phone number. */
-  token: string
+  token: string;
   /** The user's verification type. */
-  type: MobileOtpType
+  type: MobileOtpType;
   options?: {
     /** A URL to send the user to after they are confirmed. */
-    redirectTo?: string
+    redirectTo?: string;
 
     /**
      * Verification token received when the user completes the captcha on the site.
      *
      * @deprecated
      */
-    captchaToken?: string
-  }
+    captchaToken?: string;
+  };
 }
 export interface VerifyEmailOtpParams {
   /** The user's email address. */
-  email: string
+  email: string;
   /** The otp sent to the user's email address. */
-  token: string
+  token: string;
   /** The user's verification type. */
-  type: EmailOtpType
+  type: EmailOtpType;
   options?: {
     /** A URL to send the user to after they are confirmed. */
-    redirectTo?: string
+    redirectTo?: string;
 
     /** Verification token received when the user completes the captcha on the site.
      *
      * @deprecated
      */
-    captchaToken?: string
-  }
+    captchaToken?: string;
+  };
 }
 
 export interface VerifyTokenHashParams {
   /** The token hash used in an email link */
-  token_hash: string
+  token_hash: string;
 
   /** The user's verification type. */
-  type: EmailOtpType
+  type: EmailOtpType;
 }
 
-export type MobileOtpType = 'sms' | 'phone_change'
-export type EmailOtpType = 'signup' | 'invite' | 'magiclink' | 'recovery' | 'email_change' | 'email'
+export type MobileOtpType = "sms" | "phone_change";
+export type EmailOtpType =
+  | "signup"
+  | "invite"
+  | "magiclink"
+  | "recovery"
+  | "email_change"
+  | "email";
 
 export type ResendParams =
   | {
-      type: Extract<EmailOtpType, 'signup' | 'email_change'>
-      email: string
+      type: Extract<EmailOtpType, "signup" | "email_change">;
+      email: string;
       options?: {
         /** A URL to send the user to after they have signed-in. */
-        emailRedirectTo?: string
+        emailRedirectTo?: string;
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
+        captchaToken?: string;
+      };
     }
   | {
-      type: Extract<MobileOtpType, 'sms' | 'phone_change'>
-      phone: string
+      type: Extract<MobileOtpType, "sms" | "phone_change">;
+      phone: string;
       options?: {
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
-    }
+        captchaToken?: string;
+      };
+    };
 
 export type SignInWithSSO =
   | {
       /** UUID of the SSO provider to invoke single-sign on to. */
-      providerId: string
+      providerId: string;
 
       options?: {
         /** A URL to send the user to after they have signed-in. */
-        redirectTo?: string
+        redirectTo?: string;
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
+        captchaToken?: string;
+      };
     }
   | {
       /** Domain name of the organization for which to invoke single-sign on. */
-      domain: string
+      domain: string;
 
       options?: {
         /** A URL to send the user to after they have signed-in. */
-        redirectTo?: string
+        redirectTo?: string;
         /** Verification token received when the user completes the captcha on the site. */
-        captchaToken?: string
-      }
-    }
+        captchaToken?: string;
+      };
+    };
 
 export type GenerateSignupLinkParams = {
-  type: 'signup'
-  email: string
-  password: string
-  options?: Pick<GenerateLinkOptions, 'data' | 'redirectTo'>
-}
+  type: "signup";
+  email: string;
+  password: string;
+  options?: Pick<GenerateLinkOptions, "data" | "redirectTo">;
+};
 
 export type GenerateInviteOrMagiclinkParams = {
-  type: 'invite' | 'magiclink'
+  type: "invite" | "magiclink";
   /** The user's email */
-  email: string
-  options?: Pick<GenerateLinkOptions, 'data' | 'redirectTo'>
-}
+  email: string;
+  options?: Pick<GenerateLinkOptions, "data" | "redirectTo">;
+};
 
 export type GenerateRecoveryLinkParams = {
-  type: 'recovery'
+  type: "recovery";
   /** The user's email */
-  email: string
-  options?: Pick<GenerateLinkOptions, 'redirectTo'>
-}
+  email: string;
+  options?: Pick<GenerateLinkOptions, "redirectTo">;
+};
 
 export type GenerateEmailChangeLinkParams = {
-  type: 'email_change_current' | 'email_change_new'
+  type: "email_change_current" | "email_change_new";
   /** The user's email */
-  email: string
+  email: string;
   /**
    * The user's new email. Only required if type is 'email_change_current' or 'email_change_new'.
    */
-  newEmail: string
-  options?: Pick<GenerateLinkOptions, 'redirectTo'>
-}
+  newEmail: string;
+  options?: Pick<GenerateLinkOptions, "redirectTo">;
+};
 
 export interface GenerateLinkOptions {
   /**
@@ -848,32 +873,32 @@ export interface GenerateLinkOptions {
    *
    * The `data` should be a JSON object that includes user-specific info, such as their first and last name.
    */
-  data?: object
+  data?: object;
   /** The URL which will be appended to the email link generated. */
-  redirectTo?: string
+  redirectTo?: string;
 }
 
 export type GenerateLinkParams =
   | GenerateSignupLinkParams
   | GenerateInviteOrMagiclinkParams
   | GenerateRecoveryLinkParams
-  | GenerateEmailChangeLinkParams
+  | GenerateEmailChangeLinkParams;
 
 export type GenerateLinkResponse =
   | {
       data: {
-        properties: GenerateLinkProperties
-        user: User
-      }
-      error: null
+        properties: GenerateLinkProperties;
+        user: User;
+      };
+      error: null;
     }
   | {
       data: {
-        properties: null
-        user: null
-      }
-      error: AuthError
-    }
+        properties: null;
+        user: null;
+      };
+      error: AuthError;
+    };
 
 /** The properties related to the email link generated  */
 export type GenerateLinkProperties = {
@@ -881,137 +906,139 @@ export type GenerateLinkProperties = {
    * The email link to send to the user.
    * The action_link follows the following format: auth/v1/verify?type={verification_type}&token={hashed_token}&redirect_to={redirect_to}
    * */
-  action_link: string
+  action_link: string;
   /**
    * The raw email OTP.
    * You should send this in the email if you want your users to verify using an OTP instead of the action link.
    * */
-  email_otp: string
+  email_otp: string;
   /**
    * The hashed token appended to the action link.
    * */
-  hashed_token: string
+  hashed_token: string;
   /** The URL appended to the action link. */
-  redirect_to: string
+  redirect_to: string;
   /** The verification type that the email link is associated to. */
-  verification_type: GenerateLinkType
-}
+  verification_type: GenerateLinkType;
+};
 
 export type GenerateLinkType =
-  | 'signup'
-  | 'invite'
-  | 'magiclink'
-  | 'recovery'
-  | 'email_change_current'
-  | 'email_change_new'
+  | "signup"
+  | "invite"
+  | "magiclink"
+  | "recovery"
+  | "email_change_current"
+  | "email_change_new";
 
-export type MFAEnrollParams = MFAEnrollTOTPParams | MFAEnrollPhoneParams
+export type MFAEnrollParams = MFAEnrollTOTPParams | MFAEnrollPhoneParams;
 
 export type MFAUnenrollParams = {
   /** ID of the factor being unenrolled. */
-  factorId: string
-}
+  factorId: string;
+};
 
 export type MFAVerifyParams = {
   /** ID of the factor being verified. Returned in enroll(). */
-  factorId: string
+  factorId: string;
 
   /** ID of the challenge being verified. Returned in challenge(). */
-  challengeId: string
+  challengeId: string;
 
   /** Verification code provided by the user. */
-  code: string
-}
+  code: string;
+};
 
 export type MFAChallengeParams = {
   /** ID of the factor to be challenged. Returned in enroll(). */
-  factorId: string
+  factorId: string;
   /** Messaging channel to use (e.g. whatsapp or sms). Only relevant for phone factors */
-  channel?: 'sms' | 'whatsapp'
-}
+  channel?: "sms" | "whatsapp";
+};
 
 export type MFAChallengeAndVerifyParams = {
   /** ID of the factor being verified. Returned in enroll(). */
-  factorId: string
+  factorId: string;
   /** Verification code provided by the user. */
-  code: string
-}
+  code: string;
+};
 
 export type AuthMFAVerifyResponse =
   | {
       data: {
         /** New access token (JWT) after successful verification. */
-        access_token: string
+        access_token: string;
 
         /** Type of token, typically `Bearer`. */
-        token_type: string
+        token_type: string;
 
         /** Number of seconds in which the access token will expire. */
-        expires_in: number
+        expires_in: number;
 
         /** Refresh token you can use to obtain new access tokens when expired. */
-        refresh_token: string
+        refresh_token: string;
 
         /** Updated user profile. */
-        user: User
-      }
-      error: null
+        user: User;
+      };
+      error: null;
     }
   | {
-      data: null
-      error: AuthError
-    }
+      data: null;
+      error: AuthError;
+    };
 
-export type AuthMFAEnrollResponse = AuthMFAEnrollTOTPResponse | AuthMFAEnrollPhoneResponse
+export type AuthMFAEnrollResponse =
+  | AuthMFAEnrollTOTPResponse
+  | AuthMFAEnrollPhoneResponse;
 
 export type AuthMFAUnenrollResponse =
   | {
       data: {
         /** ID of the factor that was successfully unenrolled. */
-        id: string
-      }
-      error: null
+        id: string;
+      };
+      error: null;
     }
-  | { data: null; error: AuthError }
+  | { data: null; error: AuthError };
 
 export type AuthMFAChallengeResponse =
   | {
       data: {
         /** ID of the newly created challenge. */
-        id: string
+        id: string;
 
         /** Factor Type which generated the challenge */
-        type: 'totp' | 'phone'
+        type: "totp" | "phone";
 
         /** Timestamp in UNIX seconds when this challenge will no longer be usable. */
-        expires_at: number
-      }
-      error: null
+        expires_at: number;
+      };
+      error: null;
     }
-  | { data: null; error: AuthError }
+  | { data: null; error: AuthError };
 
 export type AuthMFAListFactorsResponse =
   | {
       data: {
         /** All available factors (verified and unverified). */
-        all: Factor[]
+        all: Factor[];
 
         /** Only verified TOTP factors. (A subset of `all`.) */
-        totp: Factor[]
+        totp: Factor[];
         /** Only verified Phone factors. (A subset of `all`.) */
-        phone: Factor[]
-      }
-      error: null
+        phone: Factor[];
+      };
+      error: null;
     }
-  | { data: null; error: AuthError }
+  | { data: null; error: AuthError };
 
-export type AuthenticatorAssuranceLevels = 'aal1' | 'aal2'
+export type AuthenticatorAssuranceLevels = "aal1" | "aal2";
 
 export type AuthMFAGetAuthenticatorAssuranceLevelResponse =
   | {
       data: {
         /** Current AAL level of the session. */
-        currentLevel: AuthenticatorAssuranceLevels | null
+        currentLevel: AuthenticatorAssuranceLevels | null;
 
         /**
          * Next possible AAL level for the session. If the next level is higher
@@ -1019,18 +1046,18 @@ export type AuthMFAGetAuthenticatorAssuranceLevelResponse =
          *
          * @see {@link GoTrueMFAApi#challenge}
          */
-        nextLevel: AuthenticatorAssuranceLevels | null
+        nextLevel: AuthenticatorAssuranceLevels | null;
 
         /**
          * A list of all authentication methods attached to this session. Use
          * the information here to detect the last time a user verified a
          * factor, for example if implementing a step-up scenario.
          */
-        currentAuthenticationMethods: AMREntry[]
-      }
-      error: null
+        currentAuthenticationMethods: AMREntry[];
+      };
+      error: null;
     }
-  | { data: null; error: AuthError }
+  | { data: null; error: AuthError };
 
 /**
  * Contains the full multi-factor authentication API.
@@ -1047,33 +1074,35 @@ export interface GoTrueMFAApi {
    * Upon verifying a factor, all other sessions are logged out and the current session's authenticator level is promoted to `aal2`.
    *
    */
-  enroll(params: MFAEnrollTOTPParams): Promise<AuthMFAEnrollTOTPResponse>
-  enroll(params: MFAEnrollPhoneParams): Promise<AuthMFAEnrollPhoneResponse>
-  enroll(params: MFAEnrollParams): Promise<AuthMFAEnrollResponse>
+  enroll(params: MFAEnrollTOTPParams): Promise<AuthMFAEnrollTOTPResponse>;
+  enroll(params: MFAEnrollPhoneParams): Promise<AuthMFAEnrollPhoneResponse>;
+  enroll(params: MFAEnrollParams): Promise<AuthMFAEnrollResponse>;
 
   /**
    * Prepares a challenge used to verify that a user has access to a MFA
    * factor.
    */
-  challenge(params: MFAChallengeParams): Promise<AuthMFAChallengeResponse>
+  challenge(params: MFAChallengeParams): Promise<AuthMFAChallengeResponse>;
 
   /**
    * Verifies a code against a challenge. The verification code is
    * provided by the user by entering a code seen in their authenticator app.
    */
-  verify(params: MFAVerifyParams): Promise<AuthMFAVerifyResponse>
+  verify(params: MFAVerifyParams): Promise<AuthMFAVerifyResponse>;
 
   /**
    * Unenroll removes a MFA factor.
    * A user has to have an `aal2` authenticator level in order to unenroll a `verified` factor.
    */
-  unenroll(params: MFAUnenrollParams): Promise<AuthMFAUnenrollResponse>
+  unenroll(params: MFAUnenrollParams): Promise<AuthMFAUnenrollResponse>;
 
   /**
    * Helper method which creates a challenge and immediately uses the given code to verify against it thereafter. The verification code is
    * provided by the user by entering a code seen in their authenticator app.
    */
-  challengeAndVerify(params: MFAChallengeAndVerifyParams): Promise<AuthMFAVerifyResponse>
+  challengeAndVerify(
+    params: MFAChallengeAndVerifyParams
+  ): Promise<AuthMFAVerifyResponse>;
 
   /**
    * Returns the list of MFA factors enabled for this user.
@@ -1083,7 +1112,7 @@ export interface GoTrueMFAApi {
    * @see {@link GoTrueClient#getUser}
    *
    */
-  listFactors(): Promise<AuthMFAListFactorsResponse>
+  listFactors(): Promise<AuthMFAListFactorsResponse>;
 
   /**
    * Returns the Authenticator Assurance Level (AAL) for the active session.
@@ -1098,7 +1127,7 @@ export interface GoTrueMFAApi {
    * user needs to be shown a screen to verify their MFA factors.
    *
    */
-  getAuthenticatorAssuranceLevel(): Promise<AuthMFAGetAuthenticatorAssuranceLevelResponse>
+  getAuthenticatorAssuranceLevel(): Promise<AuthMFAGetAuthenticatorAssuranceLevelResponse>;
 }
 
 /**
@@ -1108,22 +1137,22 @@ export type AuthMFAAdminDeleteFactorResponse =
   | {
       data: {
         /** ID of the factor that was successfully deleted. */
-        id: string
-      }
-      error: null
+        id: string;
+      };
+      error: null;
     }
-  | { data: null; error: AuthError }
+  | { data: null; error: AuthError };
 
 /**
  * @expermental
  */
 export type AuthMFAAdminDeleteFactorParams = {
   /** ID of the MFA factor to delete. */
-  id: string
+  id: string;
 
   /** ID of the user whose factor is being deleted. */
-  userId: string
-}
+  userId: string;
+};
 
 /**
  * @expermental
@@ -1132,19 +1161,19 @@ export type AuthMFAAdminListFactorsResponse =
   | {
       data: {
         /** All factors attached to the user. */
-        factors: Factor[]
-      }
-      error: null
+        factors: Factor[];
+      };
+      error: null;
     }
-  | { data: null; error: AuthError }
+  | { data: null; error: AuthError };
 
 /**
  * @expermental
  */
 export type AuthMFAAdminListFactorsParams = {
   /** ID of the user. */
-  userId: string
-}
+  userId: string;
+};
 
 /**
  * Contains the full multi-factor authentication administration API.
@@ -1156,7 +1185,9 @@ export interface GoTrueAdminMFAApi {
    * Lists all factors associated to a user.
    *
    */
-  listFactors(params: AuthMFAAdminListFactorsParams): Promise<AuthMFAAdminListFactorsResponse>
+  listFactors(
+    params: AuthMFAAdminListFactorsParams
+  ): Promise<AuthMFAAdminListFactorsResponse>;
 
   /**
    * Deletes a factor on a user. This will log the user out of all active
@@ -1166,20 +1197,22 @@ export interface GoTrueAdminMFAApi {
    *
    * @expermental
    */
-  deleteFactor(params: AuthMFAAdminDeleteFactorParams): Promise<AuthMFAAdminDeleteFactorResponse>
+  deleteFactor(
+    params: AuthMFAAdminDeleteFactorParams
+  ): Promise<AuthMFAAdminDeleteFactorResponse>;
 }
 
-type AnyFunction = (...args: any[]) => any
-type MaybePromisify<T> = T | Promise<T>
+type AnyFunction = (...args: any[]) => any;
+type MaybePromisify<T> = T | Promise<T>;
 
 type PromisifyMethods<T> = {
   [K in keyof T]: T[K] extends AnyFunction
     ? (...args: Parameters<T[K]>) => MaybePromisify<ReturnType<T[K]>>
-    : T[K]
-}
+    : T[K];
+};
 
 export type SupportedStorage = PromisifyMethods<
-  Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
+  Pick<Storage, "getItem" | "setItem" | "removeItem">
 > & {
   /**
    * If set to `true` signals to the library that the storage medium is used
@@ -1188,34 +1221,34 @@ export type SupportedStorage = PromisifyMethods<
    * is used on a server that reads storage information from authenticated
    * sources, such as a secure database or file.
    */
-  isServer?: boolean
-}
+  isServer?: boolean;
+};
 
-export type InitializeResult = { error: AuthError | null }
+export type InitializeResult = { error: AuthError | null };
 
 export type CallRefreshTokenResult =
   | {
-      session: Session
-      error: null
+      session: Session;
+      error: null;
     }
   | {
-      session: null
-      error: AuthError
-    }
+      session: null;
+      error: AuthError;
+    };
 
 export type Pagination = {
-  [key: string]: any
-  nextPage: number | null
-  lastPage: number
-  total: number
-}
+  [key: string]: any;
+  nextPage: number | null;
+  lastPage: number;
+  total: number;
+};
 
 export type PageParams = {
   /** The page number */
-  page?: number
+  page?: number;
   /** Number of items returned per page */
-  perPage?: number
-}
+  perPage?: number;
+};
 
 export type SignOut = {
   /**
@@ -1228,111 +1261,111 @@ export type SignOut = {
    * there is no sign-out event fired on
    * the current session!
    */
-  scope?: 'global' | 'local' | 'others'
-}
+  scope?: "global" | "local" | "others";
+};
 
 export type MFAEnrollTOTPParams = {
   /** The type of factor being enrolled. */
-  factorType: 'totp'
+  factorType: "totp";
   /** Domain which the user is enrolled with. */
-  issuer?: string
+  issuer?: string;
   /** Human readable name assigned to the factor. */
-  friendlyName?: string
-}
+  friendlyName?: string;
+};
 export type MFAEnrollPhoneParams = {
   /** The type of factor being enrolled. */
-  factorType: 'phone'
+  factorType: "phone";
   /** Human readable name assigned to the factor. */
-  friendlyName?: string
+  friendlyName?: string;
   /** Phone number associated with a factor. Number should conform to E.164 format */
-  phone: string
-}
+  phone: string;
+};
 
 export type AuthMFAEnrollTOTPResponse =
   | {
       data: {
         /** ID of the factor that was just enrolled (in an unverified state). */
-        id: string
+        id: string;
 
         /** Type of MFA factor.*/
-        type: 'totp'
+        type: "totp";
 
         /** TOTP enrollment information. */
         totp: {
           /** Contains a QR code encoding the authenticator URI. You can
            * convert it to a URL by prepending `data:image/svg+xml;utf-8,` to
            * the value. Avoid logging this value to the console. */
-          qr_code: string
+          qr_code: string;
 
           /** The TOTP secret (also encoded in the QR code). Show this secret
            * in a password-style field to the user, in case they are unable to
            * scan the QR code. Avoid logging this value to the console. */
-          secret: string
+          secret: string;
 
           /** The authenticator URI encoded within the QR code, should you need
            * to use it. Avoid loggin this value to the console. */
-          uri: string
-        }
+          uri: string;
+        };
         /** Friendly name of the factor, useful for distinguishing between factors **/
-        friendly_name?: string
-      }
-      error: null
+        friendly_name?: string;
+      };
+      error: null;
     }
   | {
-      data: null
-      error: AuthError
-    }
+      data: null;
+      error: AuthError;
+    };
 
 export type AuthMFAEnrollPhoneResponse =
   | {
       data: {
         /** ID of the factor that was just enrolled (in an unverified state). */
-        id: string
+        id: string;
 
         /** Type of MFA factor. */
-        type: 'phone'
+        type: "phone";
 
         /** Friendly name of the factor, useful for distinguishing between factors **/
-        friendly_name?: string
+        friendly_name?: string;
 
         /** Phone number of the MFA factor in E.164 format. Used to send messages  */
-        phone: string
-      }
-      error: null
+        phone: string;
+      };
+      error: null;
     }
   | {
-      data: null
-      error: AuthError
-    }
+      data: null;
+      error: AuthError;
+    };
 
 export type JwtHeader = {
-  alg: 'RS256' | 'ES256' | 'HS256'
-  kid: string
-  typ: string
-}
+  alg: "RS256" | "ES256" | "HS256";
+  kid: string;
+  typ: string;
+};
 
 export type RequiredClaims = {
-  iss: string
-  sub: string
-  aud: string | string[]
-  exp: number
-  iat: number
-  role: string
-  aal: AuthenticatorAssuranceLevels
-  session_id: string
-}
+  iss: string;
+  sub: string;
+  aud: string | string[];
+  exp: number;
+  iat: number;
+  role: string;
+  aal: AuthenticatorAssuranceLevels;
+  session_id: string;
+};
 
 export type JwtPayload = RequiredClaims & {
-  [key: string]: any
-}
+  [key: string]: any;
+};
 
 export interface JWK {
-  kty: 'RSA' | 'EC' | 'oct'
-  key_ops: string[]
-  alg?: string
-  kid?: string
-  [key: string]: any
+  kty: "RSA" | "EC" | "oct";
+  key_ops: string[];
+  alg?: string;
+  kid?: string;
+  [key: string]: any;
 }
 
-export const SIGN_OUT_SCOPES = ['global', 'local', 'others'] as const
-export type SignOutScope = typeof SIGN_OUT_SCOPES[number]
+export const SIGN_OUT_SCOPES = ["global", "local", "others"] as const;
+export type SignOutScope = typeof SIGN_OUT_SCOPES[number];

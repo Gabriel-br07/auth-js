@@ -29,22 +29,24 @@
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
     "lint": "eslint ./src/**/* test/**/*.test.ts",
-    "test": "run-s test:clean test:infra test:suite test:clean",
-    "test:suite": "npm --prefix ./test run test",
-    "test:infra": "cd infra && docker compose down && docker compose pull && docker compose up -d && sleep 30",
-    "test:clean": "cd infra && docker compose down",
+    "test": "npm --prefix ./test run test",
     "docs": "typedoc src/index.ts --out docs/v2 --excludePrivate --excludeProtected",
     "docs:json": "typedoc --json docs/v2/spec.json --excludeExternals --excludePrivate --excludeProtected src/index.ts"
   },
   "dependencies": {
     "@supabase/auth-js": "^2.71.1",
-    "@supabase/node-fetch": "^2.6.14"
+    "@supabase/node-fetch": "^2.6.14",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "vite": "^6.3.6"
   },
   "devDependencies": {
     "@types/faker": "^5.1.6",
     "@types/jest": "^28.1.6",
     "@types/jsonwebtoken": "^8.5.6",
-    "@types/node": "^18.16.19",
+    "@types/node": "^18.19.124",
     "@types/node-fetch": "^2.6.4",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
@@ -64,7 +66,7 @@
     "rimraf": "^3.0.2",
     "semantic-release-plugin-update-version-in-files": "^1.1.0",
     "ts-jest": "^28.0.7",
-    "typedoc": "^0.22.16",
-    "typescript": "^4.7.4"
+    "typedoc": "^0.23.28",
+    "typescript": "^4.9.5"
   }
 }

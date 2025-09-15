@@ -1,4 +1,4 @@
-import { supportsLocalStorage } from './helpers'
+import { supportsLocalStorage } from "./helpers";
 
 /**
  * @experimental
@@ -11,9 +11,9 @@ export const internals = {
     globalThis &&
     supportsLocalStorage() &&
     globalThis.localStorage &&
-    globalThis.localStorage.getItem('supabase.gotrue-js.locks.debug') === 'true'
+    globalThis.localStorage.getItem("supabase.gotrue-js.locks.debug") === "true"
   ),
-}
+};
 
 /**
  * An error thrown when a lock cannot be acquired after some amount of time.
@@ -21,10 +21,10 @@ export const internals = {
  * Use the {@link #isAcquireTimeout} property instead of checking with `instanceof`.
  */
 export abstract class LockAcquireTimeoutError extends Error {
-  public readonly isAcquireTimeout = true
+  public readonly isAcquireTimeout = true;
 
   constructor(message: string) {
-    super(message)
+    super(message);
   }
 }
 
@@ -62,18 +62,25 @@ export async function navigatorLock<R>(
   fn: () => Promise<R>
 ): Promise<R> {
   if (internals.debug) {
-    console.log('@supabase/gotrue-js: navigatorLock: acquire lock', name, acquireTimeout)
+    console.log(
+      "@supabase/gotrue-js: navigatorLock: acquire lock",
+      name,
+      acquireTimeout
+    );
   }
 
-  const abortController = new globalThis.AbortController()
+  const abortController = new globalThis.AbortController();
 
   if (acquireTimeout > 0) {
     setTimeout(() => {
-      abortController.abort()
+      abortController.abort();
       if (internals.debug) {
-        console.log('@supabase/gotrue-js: navigatorLock acquire timed out', name)
+        console.log(
+          "@supabase/gotrue-js: navigatorLock acquire timed out",
+          name
+        );
       }
-    }, acquireTimeout)
+    }, acquireTimeout);
   }
 
   // MDN article: https://developer.mozilla.org/en-US/docs/Web/API/LockManager/request
@@ -90,49 +97,60 @@ export async function navigatorLock<R>(
       name,
       acquireTimeout === 0
         ? {
-            mode: 'exclusive',
+            mode: "exclusive",
             ifAvailable: true,
           }
         : {
-            mode: 'exclusive',
+            mode: "exclusive",
             signal: abortController.signal,
           },
       async (lock) => {
         if (lock) {
           if (internals.debug) {
-            console.log('@supabase/gotrue-js: navigatorLock: acquired', name, lock.name)
+            console.log(
+              "@supabase/gotrue-js: navigatorLock: acquired",
+              name,
+              lock.name
+            );
           }
 
           try {
-            return await fn()
+            return await fn();
           } finally {
             if (internals.debug) {
-              console.log('@supabase/gotrue-js: navigatorLock: released', name, lock.name)
+              console.log(
+                "@supabase/gotrue-js: navigatorLock: released",
+                name,
+                lock.name
+              );
             }
           }
         } else {
           if (acquireTimeout === 0) {
             if (internals.debug) {
-              console.log('@supabase/gotrue-js: navigatorLock: not immediately available', name)
+              console.log(
+                "@supabase/gotrue-js: navigatorLock: not immediately available",
+                name
+              );
             }
 
             throw new NavigatorLockAcquireTimeoutError(
               `Acquiring an exclusive Navigator LockManager lock "${name}" immediately failed`
-            )
+            );
           } else {
             if (internals.debug) {
               try {
-                const result = await globalThis.navigator.locks.query()
+                const result = await globalThis.navigator.locks.query();
 
                 console.log(
-                  '@supabase/gotrue-js: Navigator LockManager state',
-                  JSON.stringify(result, null, '  ')
-                )
+                  "@supabase/gotrue-js: Navigator LockManager state",
+                  JSON.stringify(result, null, "  ")
+                );
               } catch (e: any) {
                 console.warn(
-                  '@supabase/gotrue-js: Error when querying Navigator LockManager state',
+                  "@supabase/gotrue-js: Error when querying Navigator LockManager state",
                   e
-                )
+                );
               }
             }
 
@@ -141,18 +159,18 @@ export async function navigatorLock<R>(
             // pretend the lock is acquired in the name of backward compatibility
             // and user experience and just run the function.
             console.warn(
-              '@supabase/gotrue-js: Navigator LockManager returned a null lock when using #request without ifAvailable set to true, it appears this browser is not following the LockManager spec https://developer.mozilla.org/en-US/docs/Web/API/LockManager/request'
-            )
+              "@supabase/gotrue-js: Navigator LockManager returned a null lock when using #request without ifAvailable set to true, it appears this browser is not following the LockManager spec https://developer.mozilla.org/en-US/docs/Web/API/LockManager/request"
+            );
 
-            return await fn()
+            return await fn();
           }
         }
       }
     )
-  )
+  );
 }
 
-const PROCESS_LOCKS: { [name: string]: Promise<any> } = {}
+const PROCESS_LOCKS: { [name: string]: Promise<any> } = {};
 
 /**
  * Implements a global exclusive lock that works only in the current process.
@@ -173,13 +191,13 @@ export async function processLock<R>(
   acquireTimeout: number,
   fn: () => Promise<R>
 ): Promise<R> {
-  const previousOperation = PROCESS_LOCKS[name] ?? Promise.resolve()
+  const previousOperation = PROCESS_LOCKS[name] ?? Promise.resolve();
 
   const currentOperation = Promise.race(
     [
       previousOperation.catch(() => {
         // ignore error of previous operation that we're waiting to finish
-        return null
+        return null;
       }),
       acquireTimeout >= 0
         ? new Promise((_, reject) => {
@@ -188,38 +206,38 @@ export async function processLock<R>(
                 new ProcessLockAcquireTimeoutError(
                   `Acquring process lock with name "${name}" timed out`
                 )
-              )
-            }, acquireTimeout)
+              );
+            }, acquireTimeout);
           })
         : null,
     ].filter((x) => x)
   )
     .catch((e: any) => {
       if (e && e.isAcquireTimeout) {
-        throw e
+        throw e;
       }
 
-      return null
+      return null;
     })
     .then(async () => {
       // previous operations finished and we didn't get a race on the acquire
       // timeout, so the current operation can finally start
-      return await fn()
-    })
+      return await fn();
+    });
 
   PROCESS_LOCKS[name] = currentOperation.catch(async (e: any) => {
     if (e && e.isAcquireTimeout) {
       // if the current operation timed out, it doesn't mean that the previous
       // operation finished, so we need contnue waiting for it to finish
-      await previousOperation
+      await previousOperation;
 
-      return null
+      return null;
     }
 
-    throw e
-  })
+    throw e;
+  });
 
   // finally wait for the current operation to finish successfully, with an
   // error or with an acquire timeout error
-  return await currentOperation
+  return await currentOperation;
 }

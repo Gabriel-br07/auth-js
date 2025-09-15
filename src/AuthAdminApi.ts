@@ -1,5 +1,5 @@
-import GoTrueAdminApi from './GoTrueAdminApi'
+import GoTrueAdminApi from "./GoTrueAdminApi";
 
-const AuthAdminApi = GoTrueAdminApi
+const AuthAdminApi = GoTrueAdminApi;
 
-export default AuthAdminApi
+export default AuthAdminApi;

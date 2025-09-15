@@ -4,8 +4,8 @@ import {
   _noResolveJsonResponse,
   _request,
   _userResponse,
-} from './lib/fetch'
-import { resolveFetch, validateUUID } from './lib/helpers'
+} from "./lib/fetch";
+import { resolveFetch, validateUUID } from "./lib/helpers";
 import {
   AdminUserAttributes,
   GenerateLinkParams,
@@ -21,37 +21,37 @@ import {
   PageParams,
   SIGN_OUT_SCOPES,
   SignOutScope,
-} from './lib/types'
-import { AuthError, isAuthError } from './lib/errors'
+} from "./lib/types";
+import { AuthError, isAuthError } from "./lib/errors";
 
 export default class GoTrueAdminApi {
   /** Contains all MFA administration methods. */
-  mfa: GoTrueAdminMFAApi
+  mfa: GoTrueAdminMFAApi;
 
-  protected url: string
+  protected url: string;
   protected headers: {
-    [key: string]: string
-  }
-  protected fetch: Fetch
+    [key: string]: string;
+  };
+  protected fetch: Fetch;
 
   constructor({
-    url = '',
+    url = "",
     headers = {},
     fetch,
   }: {
-    url: string
+    url: string;
     headers?: {
-      [key: string]: string
-    }
-    fetch?: Fetch
+      [key: string]: string;
+    };
+    fetch?: Fetch;
   }) {
-    this.url = url
-    this.headers = headers
-    this.fetch = resolveFetch(fetch)
+    this.url = url;
+    this.headers = headers;
+    this.fetch = resolveFetch(fetch);
     this.mfa = {
       listFactors: this._listFactors.bind(this),
       deleteFactor: this._deleteFactor.bind(this),
-    }
+    };
   }
 
   /**
@@ -65,23 +65,25 @@ export default class GoTrueAdminApi {
   ): Promise<{ data: null; error: AuthError | null }> {
     if (SIGN_OUT_SCOPES.indexOf(scope) < 0) {
       throw new Error(
-        `@supabase/auth-js: Parameter scope must be one of ${SIGN_OUT_SCOPES.join(', ')}`
-      )
+        `@supabase/auth-js: Parameter scope must be one of ${SIGN_OUT_SCOPES.join(
+          ", "
+        )}`
+      );
     }
 
     try {
-      await _request(this.fetch, 'POST', `${this.url}/logout?scope=${scope}`, {
+      await _request(this.fetch, "POST", `${this.url}/logout?scope=${scope}`, {
         headers: this.headers,
         jwt,
         noResolveJson: true,
-      })
-      return { data: null, error: null }
+      });
+      return { data: null, error: null };
     } catch (error) {
       if (isAuthError(error)) {
-        return { data: null, error }
+        return { data: null, error };
       }
 
-      throw error
+      throw error;
     }
   }
 
@@ -94,25 +96,25 @@ export default class GoTrueAdminApi {
     email: string,
     options: {
       /** A custom data object to store additional metadata about the user. This maps to the `auth.users.user_metadata` column. */
-      data?: object
+      data?: object;
 
       /** The URL which will be appended to the email link sent to the user's email address. Once clicked the user will end up on this URL. */
-      redirectTo?: string
+      redirectTo?: string;
     } = {}
   ): Promise<UserResponse> {
     try {
-      return await _request(this.fetch, 'POST', `${this.url}/invite`, {
+      return await _request(this.fetch, "POST", `${this.url}/invite`, {
         body: { email, data: options.data },
         headers: this.headers,
         redirectTo: options.redirectTo,
         xform: _userResponse,
-      })
+      });
     } catch (error) {
       if (isAuthError(error)) {
-        return { data: { user: null }, error }
+        return { data: { user: null }, error };
       }
 
-      throw error
+      throw error;
     }
   }
 
@@ -123,21 +125,28 @@ export default class GoTrueAdminApi {
    * @param options.data Optional user metadata. For signup only.
    * @param options.redirectTo The redirect url which should be appended to the generated link
    */
-  async generateLink(params: GenerateLinkParams): Promise<GenerateLinkResponse> {
+  async generateLink(
+    params: GenerateLinkParams
+  ): Promise<GenerateLinkResponse> {
     try {
-      const { options, ...rest } = params
-      const body: any = { ...rest, ...options }
-      if ('newEmail' in rest) {
+      const { options, ...rest } = params;
+      const body: any = { ...rest, ...options };
+      if ("newEmail" in rest) {
         // replace newEmail with new_email in request body
-        body.new_email = rest?.newEmail
-        delete body['newEmail']
+        body.new_email = rest?.newEmail;
+        delete body["newEmail"];
       }
-      return await _request(this.fetch, 'POST', `${this.url}/admin/generate_link`, {
-        body: body,
-        headers: this.headers,
-        xform: _generateLinkResponse,
-        redirectTo: options?.redirectTo,
-      })
+      return await _request(
+        this.fetch,
+        "POST",
+        `${this.url}/admin/generate_link`,
+        {
+          body: body,
+          headers: this.headers,
+          xform: _generateLinkResponse,
+          redirectTo: options?.redirectTo,
+        }
+      );
     } catch (error) {
       if (isAuthError(error)) {
         return {
@@ -146,9 +155,9 @@ export default class GoTrueAdminApi {
             user: null,
           },
           error,
-        }
+        };
       }
-      throw error
+      throw error;
     }
   }
 
@@ -159,17 +168,17 @@ export default class GoTrueAdminApi {
    */
   async createUser(attributes: AdminUserAttributes): Promise<UserResponse> {
     try {
-      return await _request(this.fetch, 'POST', `${this.url}/admin/users`, {
+      return await _request(this.fetch, "POST", `${this.url}/admin/users`, {
         body: attributes,
         headers: this.headers,
         xform: _userResponse,
-      })
+      });
     } catch (error) {
       if (isAuthError(error)) {
-        return { data: { user: null }, error }
+        return { data: { user: null }, error };
       }
 
-      throw error
+      throw error;
     }
   }
 
@@ -186,36 +195,43 @@ export default class GoTrueAdminApi {
     | { data: { users: [] }; error: AuthError }
   > {
     try {
-      const pagination: Pagination = { nextPage: null, lastPage: 0, total: 0 }
-      const response = await _request(this.fetch, 'GET', `${this.url}/admin/users`, {
-        headers: this.headers,
-        noResolveJson: true,
-        query: {
-          page: params?.page?.toString() ?? '',
-          per_page: params?.perPage?.toString() ?? '',
-        },
-        xform: _noResolveJsonResponse,
-      })
-      if (response.error) throw response.error
+      const pagination: Pagination = { nextPage: null, lastPage: 0, total: 0 };
+      const response = await _request(
+        this.fetch,
+        "GET",
+        `${this.url}/admin/users`,
+        {
+          headers: this.headers,
+          noResolveJson: true,
+          query: {
+            page: params?.page?.toString() ?? "",
+            per_page: params?.perPage?.toString() ?? "",
+          },
+          xform: _noResolveJsonResponse,
+        }
+      );
+      if (response.error) throw response.error;
 
-      const users = await response.json()
-      const total = response.headers.get('x-total-count') ?? 0
-      const links = response.headers.get('link')?.split(',') ?? []
+      const users = await response.json();
+      const total = response.headers.get("x-total-count") ?? 0;
+      const links = response.headers.get("link")?.split(",") ?? [];
       if (links.length > 0) {
         links.forEach((link: string) => {
-          const page = parseInt(link.split(';')[0].split('=')[1].substring(0, 1))
-          const rel = JSON.parse(link.split(';')[1].split('=')[1])
-          pagination[`${rel}Page`] = page
-        })
+          const page = parseInt(
+            link.split(";")[0].split("=")[1].substring(0, 1)
+          );
+          const rel = JSON.parse(link.split(";")[1].split("=")[1]);
+          pagination[`${rel}Page`] = page;
+        });
 
-        pagination.total = parseInt(total)
+        pagination.total = parseInt(total);
       }
-      return { data: { ...users, ...pagination }, error: null }
+      return { data: { ...users, ...pagination }, error: null };
     } catch (error) {
       if (isAuthError(error)) {
-        return { data: { users: [] }, error }
+        return { data: { users: [] }, error };
       }
-      throw error
+      throw error;
     }
   }
 
@@ -227,19 +243,24 @@ export default class GoTrueAdminApi {
    * This function should only be called on a server. Never expose your `service_role` key in the browser.
    */
   async getUserById(uid: string): Promise<UserResponse> {
-    validateUUID(uid)
+    validateUUID(uid);
 
     try {
-      return await _request(this.fetch, 'GET', `${this.url}/admin/users/${uid}`, {
-        headers: this.headers,
-        xform: _userResponse,
-      })
+      return await _request(
+        this.fetch,
+        "GET",
+        `${this.url}/admin/users/${uid}`,
+        {
+          headers: this.headers,
+          xform: _userResponse,
+        }
+      );
     } catch (error) {
       if (isAuthError(error)) {
-        return { data: { user: null }, error }
+        return { data: { user: null }, error };
       }
 
-      throw error
+      throw error;
     }
   }
 
@@ -250,21 +271,29 @@ export default class GoTrueAdminApi {
    *
    * This function should only be called on a server. Never expose your `service_role` key in the browser.
    */
-  async updateUserById(uid: string, attributes: AdminUserAttributes): Promise<UserResponse> {
-    validateUUID(uid)
+  async updateUserById(
+    uid: string,
+    attributes: AdminUserAttributes
+  ): Promise<UserResponse> {
+    validateUUID(uid);
 
     try {
-      return await _request(this.fetch, 'PUT', `${this.url}/admin/users/${uid}`, {
-        body: attributes,
-        headers: this.headers,
-        xform: _userResponse,
-      })
+      return await _request(
+        this.fetch,
+        "PUT",
+        `${this.url}/admin/users/${uid}`,
+        {
+          body: attributes,
+          headers: this.headers,
+          xform: _userResponse,
+        }
+      );
     } catch (error) {
       if (isAuthError(error)) {
-        return { data: { user: null }, error }
+        return { data: { user: null }, error };
       }
 
-      throw error
+      throw error;
     }
   }
 
@@ -277,76 +306,84 @@ export default class GoTrueAdminApi {
    *
    * This function should only be called on a server. Never expose your `service_role` key in the browser.
    */
-  async deleteUser(id: string, shouldSoftDelete = false): Promise<UserResponse> {
-    validateUUID(id)
+  async deleteUser(
+    id: string,
+    shouldSoftDelete = false
+  ): Promise<UserResponse> {
+    validateUUID(id);
 
     try {
-      return await _request(this.fetch, 'DELETE', `${this.url}/admin/users/${id}`, {
-        headers: this.headers,
-        body: {
-          should_soft_delete: shouldSoftDelete,
-        },
-        xform: _userResponse,
-      })
+      return await _request(
+        this.fetch,
+        "DELETE",
+        `${this.url}/admin/users/${id}`,
+        {
+          headers: this.headers,
+          body: {
+            should_soft_delete: shouldSoftDelete,
+          },
+          xform: _userResponse,
+        }
+      );
     } catch (error) {
       if (isAuthError(error)) {
-        return { data: { user: null }, error }
+        return { data: { user: null }, error };
       }
 
-      throw error
+      throw error;
     }
   }
 
   private async _listFactors(
     params: AuthMFAAdminListFactorsParams
   ): Promise<AuthMFAAdminListFactorsResponse> {
-    validateUUID(params.userId)
+    validateUUID(params.userId);
 
     try {
       const { data, error } = await _request(
         this.fetch,
-        'GET',
+        "GET",
         `${this.url}/admin/users/${params.userId}/factors`,
         {
           headers: this.headers,
           xform: (factors: any) => {
-            return { data: { factors }, error: null }
+            return { data: { factors }, error: null };
           },
         }
-      )
-      return { data, error }
+      );
+      return { data, error };
     } catch (error) {
       if (isAuthError(error)) {
-        return { data: null, error }
+        return { data: null, error };
       }
 
-      throw error
+      throw error;
     }
   }
 
   private async _deleteFactor(
     params: AuthMFAAdminDeleteFactorParams
   ): Promise<AuthMFAAdminDeleteFactorResponse> {
-    validateUUID(params.userId)
-    validateUUID(params.id)
+    validateUUID(params.userId);
+    validateUUID(params.id);
 
     try {
       const data = await _request(
         this.fetch,
-        'DELETE',
+        "DELETE",
         `${this.url}/admin/users/${params.userId}/factors/${params.id}`,
         {
           headers: this.headers,
         }
-      )
+      );
 
-      return { data, error: null }
+      return { data, error: null };
     } catch (error) {
       if (isAuthError(error)) {
-        return { data: null, error }
+        return { data: null, error };
       }
 
-      throw error
+      throw error;
     }
   }
 }

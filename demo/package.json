@@ -1,0 +1,21 @@
+{
+  "name": "auth-js-demo",
+  "version": "1.0.0",
+  "description": "Demo interface for testing Supabase Auth OAuth flows",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview",
+    "preview": "vite preview",
+    "postinstall": "echo '✅ Demo dependencies installed successfully!'"
+  },
+  "dependencies": {
+    "@supabase/auth-js": "file:../"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.4.0"
+  }
+}

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Demo - Sistema de Autenticação</title>
+  <meta name="description" content="Sistema completo de autenticação com cadastro, login, OAuth e painel administrativo">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="http://localhost:9999">
+  
+  <style>
+    /* Reset e configurações globais */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* Loading inicial */
+    #initial-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      color: white;
+    }
+    
+    .loading-content {
+      text-align: center;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .loading-content h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    .loading-content p {
+      margin: 0;
+      opacity: 0.8;
+      font-size: 16px;
+    }
+
+    /* Hide app initially */
+    #app {
+      display: none;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    /* Show app when loaded */
+    .app-loaded #app {
+      display: block;
+    }
+
+    .app-loaded #initial-loading {
+      display: none;
+    }
+
+    /* Estilos para mensagens de erro globais */
+    .global-error {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #fee;
+      color: #c33;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      border: 1px solid #fcc;
+      z-index: 10000;
+      max-width: 400px;
+      font-size: 14px;
+      animation: slideInRight 0.3s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .global-error strong {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .global-error small {
+      opacity: 0.8;
+    }
+
+    /* Container principal da aplicação */
+    .main-container {
+      width: 100%;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 80px;
+    }
+
+    /* Header da aplicação */
+    .app-header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+
+    .app-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .app-header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    /* Card principal */
+    .app-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      max-width: 500px;
+      width: 100%;
+      animation: slideInUp 0.5s ease-out;
+    }
+
+    @keyframes slideInUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 20px 10px;
+        padding-top: 40px;
+      }
+
+      .app-header h1 {
+        font-size: 2rem;
+      }
+
+      .app-header p {
+        font-size: 1rem;
+      }
+
+      .app-card {
+        padding: 30px 20px;
+        margin: 0 10px;
+      }
+
+      .global-error {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+    }
+
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Loading inicial -->
+  <div id="initial-loading">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h2>Carregando...</h2>
+      <p>Inicializando sistema de autenticação</p>
+    </div>
+  </div>
+
+  <!-- Container principal da aplicação -->
+  <div id="app">
+    <div class="main-container">
+      <div class="app-header">
+        <h1>🔐 Auth System</h1>
+        <p>Sistema completo de autenticação e gerenciamento</p>
+      </div>
+      
+      <div class="app-card">
+        <!-- Conteúdo será inserido dinamicamente pelo router -->
+        <div id="router-content">
+          <div style="text-align: center; color: #666; padding: 20px;">
+            <div style="font-size: 2rem; margin-bottom: 16px;">⚡</div>
+            <h3>Sistema Inicializando...</h3>
+            <p>Configurando rotas e componentes</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="/src/main.ts"></script>
+  
+  <!-- Script para controle de loading e tratamento de erros -->
+  <script>
+    console.log('%c🚀 Auth Demo System', 'color: #667eea; font-size: 20px; font-weight: bold;');
+    console.log('%c📚 Funcionalidades disponíveis:', 'color: #333; font-weight: bold;');
+    console.log('   • Cadastro com validações avançadas');
+    console.log('   • Login com email/senha');
+    console.log('   • OAuth (Google, GitHub, Discord)');
+    console.log('   • Dashboard do usuário');
+    console.log('   • Painel administrativo');
+    console.log('   • Sistema de rotas protegidas');
+    console.log('   • Gerenciamento de tokens JWT');
+    console.log('%c🔧 Configuração:', 'color: #333; font-weight: bold;');
+    console.log('   Backend: http://localhost:9999');
+    console.log('   Frontend: http://localhost:3000');
+    console.log('   Database: PostgreSQL');
+
+    // Função para remover loading
+    function hideLoading() {
+      document.body.classList.add('app-loaded');
+    }
+
+    // Função para mostrar erro global
+    function showGlobalError(message, details = '') {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'global-error';
+      errorDiv.innerHTML = `
+        <strong>❌ ${message}</strong>
+        ${details ? `<small>${details}</small>` : ''}
+      `;
+      document.body.appendChild(errorDiv);
+      
+      // Auto remove após 8 segundos
+      setTimeout(() => {
+        if (errorDiv.parentNode) {
+          errorDiv.style.animation = 'slideInRight 0.3s ease-out reverse';
+          setTimeout(() => errorDiv.remove(), 300);
+        }
+      }, 8000);
+    }
+
+    // Remover loading após carregamento completo
+    window.addEventListener('load', () => {
+      // Aguardar um pouco para garantir que o main.ts foi executado
+      setTimeout(hideLoading, 800);
+    });
+
+    // Fallback: remover loading se demorar muito
+    setTimeout(() => {
+      if (!document.body.classList.contains('app-loaded')) {
+        console.warn('⚠️ Loading demorou muito, removendo forçadamente');
+        hideLoading();
+      }
+    }, 8000);
+
+    // Tratamento de erro global mais robusto
+    window.addEventListener('error', (event) => {
+      console.error('❌ Erro global capturado:', event.error);
+      
+      let errorMessage = 'Algo deu errado';
+      let errorDetails = 'Verifique o console para mais detalhes';
+      
+      // Personalizar mensagem baseada no tipo de erro
+      if (event.error?.message) {
+        if (event.error.message.includes('fetch')) {
+          errorMessage = 'Erro de conexão';
+          errorDetails = 'Verifique se o backend está rodando em localhost:9999';
+        } else if (event.error.message.includes('import')) {
+          errorMessage = 'Erro ao carregar módulo';
+          errorDetails = 'Verifique se todas as dependências estão instaladas';
+        } else {
+          errorMessage = 'Erro na aplicação';
+          errorDetails = event.error.message.substring(0, 80) + '...';
+        }
+      }
+      
+      showGlobalError(errorMessage, errorDetails);
+    });
+
+    // Tratamento de promise rejeitada
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('❌ Promise rejeitada:', event.reason);
+      showGlobalError('Erro assíncrono', 'Uma operação falhou inesperadamente');
+    });
+
+    // Expor funções globalmente para debug
+    window.authDebug = {
+      hideLoading,
+      showGlobalError,
+      toggleDebugMode: () => {
+        document.body.classList.toggle('debug-mode');
+        console.log('🔧 Debug mode toggled');
+      }
+    };
+
+    // Detectar se está em modo dev
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      console.log('%c🔧 Modo de desenvolvimento ativo', 'color: #28a745; font-weight: bold;');
+      console.log('Use authDebug.showGlobalError("Teste", "Detalhes") para testar erros');
+      console.log('Use authDebug.toggleDebugMode() para alternar debug visual');
+    }
+  </script>
+</body>
+</html>
