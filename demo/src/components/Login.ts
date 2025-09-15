@@ -1,6 +1,7 @@
 // Componente de Login
 import { authSystem } from '../contexts/AuthSystem';
 import UserService from '../services/userService';
+import { showPopup } from '../utils/ui';
 
 interface LoginFormData {
   email: string;
@@ -54,7 +55,11 @@ class LoginComponent {
     this.updateSubmitButton();
 
     try {
-      console.log('🔐 Iniciando login:', { email: this.formData.email });
+      const loadingPopup = showPopup({
+      message: 'Aguarde, estamos processando seu login...',
+      type: 'loading',
+      dismissible: false
+    });
 
       // Realizar login através do AuthSystem
       await authSystem.login({
@@ -68,7 +73,12 @@ class LoginComponent {
       if (currentUser) {
         // Adicionar usuário ao sistema caso ainda não esteja (para usuários antigos)
         UserService.addUser(currentUser);
-        console.log('✅ Login realizado e usuário sincronizado no sistema');
+        loadingPopup.close();
+      showPopup({
+        message: 'Login realizado com sucesso!',
+        type: 'success',
+        duration: 2000
+       });
       }
 
       this.showSuccess();
@@ -79,8 +89,10 @@ class LoginComponent {
       }, 2000);
 
     } catch (error) {
-      console.error('❌ Erro no login:', error);
-      this.showError(error instanceof Error ? error.message : 'Erro no login');
+       showPopup({
+      message: error instanceof Error ? error.message : 'Erro ao realizar login.',
+      type: 'error'
+    });
     } finally {
       this.isLoading = false;
       this.updateSubmitButton();
@@ -88,9 +100,7 @@ class LoginComponent {
   }
 
   private async handleOAuthLogin(provider: 'google' | 'github'): Promise<void> {
-    try {
-      this.showStatus(`Redirecionando para ${provider}...`, 'loading');
-      
+    try {      
       // Importar authApi dinamicamente
       const { authApi } = await import('../services/authApi');
       
@@ -101,14 +111,21 @@ class LoginComponent {
       const oauthUrl = authApi.getOAuthUrl(provider);
       
       console.log(`🔗 Redirecionando para ${provider}:`, oauthUrl);
+
+      showPopup({
+      message: `Redirecionando para ${provider}...`,
+      type: 'loading',
+      duration: 2000
+    });
       
       // Fazer redirecionamento real
       window.location.href = oauthUrl;
 
     } catch (error) {
-      console.error(`❌ Erro no login com ${provider}:`, error);
-      this.showError(error instanceof Error ? error.message : `Erro no login com ${provider}`);
-      // Limpar sessionStorage em caso de erro
+      showPopup({
+        message: error instanceof Error ? error.message : 'Erro ao realizar login.',
+        type: 'error'
+      });
       sessionStorage.removeItem('oauth_provider');
     }
   }
