@@ -266,7 +266,6 @@ describe("ethereum", () => {
       const fullMessage: SiweMessage = {
         address: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
         chainId: 137,
-<<<<<<< HEAD
         domain: 'polygon.example.com',
         uri: 'https://polygon.example.com/auth',
         version: '1',
@@ -278,27 +277,10 @@ describe("ethereum", () => {
         resources: ['https://polygon.example.com/api', 'https://polygon.example.com/dashboard'],
         scheme: 'https',
       }
-=======
-        domain: "polygon.example.com",
-        uri: "https://polygon.example.com/auth",
-        version: "1",
-        statement: "Sign in to access your account",
-        nonce: "abcdef1234567890",
-        expirationTime: new Date("2024-12-31T23:59:59Z"),
-        notBefore: new Date("2024-01-01T00:00:00Z"),
-        requestId: "auth-request-12345",
-        resources: [
-          "https://polygon.example.com/api",
-          "https://polygon.example.com/dashboard",
-        ],
-        scheme: "https",
-      };
->>>>>>> 83f38e9e061976025d84f03700cfdfd0951cb586
 
       const message = createSiweMessage(fullMessage);
 
       // Check the structure
-<<<<<<< HEAD
       const lines = message.split('\n')
       expect(lines[0]).toBe(
         'https://polygon.example.com wants you to sign in with your Ethereum account:'
@@ -319,30 +301,6 @@ describe("ethereum", () => {
       expect(lines[14]).toBe('- https://polygon.example.com/api')
       expect(lines[15]).toBe('- https://polygon.example.com/dashboard')
     })
-=======
-      const lines = message.split("\n");
-      expect(lines[0]).toBe(
-        "https://polygon.example.com wants you to sign in with your Ethereum account:"
-      );
-      expect(lines[1]).toBe("0x742d35cc6634c0532925a3b8d4c9db96c4b4d8b6");
-      expect(lines[2]).toBe("");
-      expect(lines[3]).toBe("Sign in to access your account");
-      expect(lines[4]).toBe("");
-      expect(lines[5]).toBe("URI: https://polygon.example.com/auth");
-      expect(lines[6]).toBe("Version: 1");
-      expect(lines[7]).toBe("Chain ID: 137");
-      expect(lines[8]).toBe("Nonce: abcdef1234567890");
-      expect(lines[9]).toMatch(
-        /^Issued At: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
-      );
-      expect(lines[10]).toBe("Expiration Time: 2024-12-31T23:59:59.000Z");
-      expect(lines[11]).toBe("Not Before: 2024-01-01T00:00:00.000Z");
-      expect(lines[12]).toBe("Request ID: auth-request-12345");
-      expect(lines[13]).toBe("Resources:");
-      expect(lines[14]).toBe("- https://polygon.example.com/api");
-      expect(lines[15]).toBe("- https://polygon.example.com/dashboard");
-    });
->>>>>>> 83f38e9e061976025d84f03700cfdfd0951cb586
 
     test("should handle issuedAt default value", () => {
       const beforeTest = new Date();

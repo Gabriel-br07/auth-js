@@ -3574,15 +3574,9 @@ export default class GoTrueClient {
       const isValid = await crypto.subtle.verify(
         algorithm,
         publicKey,
-<<<<<<< HEAD
-        new Uint8Array(signature),
-        new Uint8Array(stringToUint8Array(`${rawHeader}.${rawPayload}`))
-      )
-=======
         signature as BufferSource,
         stringToUint8Array(`${rawHeader}.${rawPayload}`) as BufferSource
       );
->>>>>>> 83f38e9e061976025d84f03700cfdfd0951cb586
 
       if (!isValid) {
         throw new AuthInvalidJwtError("Invalid JWT signature");

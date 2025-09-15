@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 import { MockServer } from 'jest-mock-server'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-=======
-import { MockServer } from "jest-mock-server";
->>>>>>> 83f38e9e061976025d84f03700cfdfd0951cb586
 // @ts-ignore
 import fetch from "@supabase/node-fetch";
 import { API_VERSION_HEADER_NAME } from "../src/lib/constants";
