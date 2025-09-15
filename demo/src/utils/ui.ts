@@ -91,38 +91,36 @@ export function showPopup({
   }
 
     function update(opts: Partial<PopupOptions>) {
-        if (opts.message !== undefined) {
-            el.querySelector('.pp-msg')!.textContent = opts.message;
-        }
-        if (opts.type) {
-            el.setAttribute('data-type', opts.type);
-            el.querySelector('.pp-left')!.innerHTML = iconFor(opts.type);
-        }
+        applyPopupUpdates(el, opts);
         if (opts.duration !== undefined) {
             if (timer) clearTimeout(timer);
             if (opts.duration && opts.duration > 0) {
                 timer = window.setTimeout(() => close(), opts.duration);
-        }else {
-            timer = null;
+            } else {
+                timer = null;
+            }
         }
     }
+
+    return {update, close, el};
 }
 
-return {update, close, el};
-}
 
+function applyPopupUpdates(el: HTMLDivElement, opts: Partial<PopupOptions>) {
+  if (opts.message !== undefined) {
+    el.querySelector('.pp-msg')!.textContent = opts.message;
+  }
+  if (opts.type) {
+    el.setAttribute('data-type', opts.type);
+    el.querySelector('.pp-left')!.innerHTML = iconFor(opts.type);
+  }
+}
 
 function buildHandle(el: HTMLDivElement): PopupHandle {
   return {
     el,
     update: (opts) => {
-      if (opts.message !== undefined) {
-        el.querySelector('.pp-msg')!.textContent = opts.message;
-      }
-      if (opts.type) {
-        el.setAttribute('data-type', opts.type);
-        el.querySelector('.pp-left')!.innerHTML = iconFor(opts.type);
-      }
+      applyPopupUpdates(el, opts);
     },
     close: () => {
       el.classList.remove('pp-in');
