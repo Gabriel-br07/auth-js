@@ -224,15 +224,21 @@ class SignUpComponent {
   }
 
   private updateSubmitButton(): void {
-    const button = this.container.querySelector('#signup-submit') as HTMLButtonElement;
-    if (this.isLoading) {
-      button.innerHTML = '<span class="loading-spinner"></span> Cadastrando...';
-      button.disabled = true;
-    } else {
-      button.innerHTML = 'Criar Conta';
-      button.disabled = false;
-    }
+  const button = this.container.querySelector('#signup-submit') as HTMLButtonElement;
+  if (this.isLoading) {
+    button.innerHTML = `
+      <div class="button-loading-state">
+        <span class="loading-text">Cadastrando...</span>
+      </div>
+    `;
+    button.disabled = true;
+    button.classList.add('loading');
+  } else {
+    button.innerHTML = 'Criar Conta';
+    button.disabled = false;
+    button.classList.remove('loading');
   }
+}
 
   private renderErrors(): void {
     Object.keys(this.errors).forEach(field => {
